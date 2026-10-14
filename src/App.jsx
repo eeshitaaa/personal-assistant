@@ -10,20 +10,20 @@ import "./App.css";
 const pages = [
   { id: "today", name: "My day", icon: "sun" },
   { id: "planner", name: "Planner", icon: "calendar" },
-  { id: "notes", name: "Notes & thoughts", icon: "note" },
+  { id: "notes", name: "Notes", icon: "note" },
   { id: "projects", name: "Projects", icon: "grid" },
   { id: "assistant", name: "Ask assistant", icon: "spark" },
   { id: "affirmations", name: "Affirmations", icon: "heart" },
 ];
 const affirmations = [
-  "I can do meaningful things at my own pace.",
-  "I am allowed to begin again, as often as I need.",
-  "Small steps still take me somewhere good.",
-  "My worth is bigger than my to-do list.",
-  "I can be a work in progress and still be proud.",
-  "Today, I choose curiosity over perfection.",
-  "I make room for good things, including rest.",
-  "I trust myself to figure out the next step.",
+  "I know what I bring to the table.",
+  "I can want more and go get it.",
+  "I don’t need to shrink to fit.",
+  "I back myself.",
+  "My time and energy are worth protecting.",
+  "I can be confident and still be figuring it out.",
+  "I deserve good things without proving myself.",
+  "I’m doing this for me.",
 ];
 const paths = {
   sun: (
@@ -114,46 +114,105 @@ function readPreference(key, fallback) {
     return fallback;
   }
 }
-function Blossom({ happy = false }) {
+function HeartCharm({ happy = false }) {
   return (
-    <div className={`blossom ${happy ? "happy" : ""}`} aria-hidden="true">
-      <svg viewBox="0 0 180 180">
+    <div className={`heart-charm ${happy ? "happy" : ""}`} aria-hidden="true">
+      <svg viewBox="0 0 180 180" fill="none">
         <defs>
-          <radialGradient id="petal">
-            <stop stopColor="#eccab0" />
-            <stop offset="1" stopColor="#b96571" />
+          <radialGradient id="ruby" cx=".3" cy=".2" r=".9">
+            <stop stopColor="#f8a5a7" />
+            <stop offset=".24" stopColor="#c74260" />
+            <stop offset=".6" stopColor="#831c3c" />
+            <stop offset="1" stopColor="#290817" />
           </radialGradient>
+          <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">
+            <stop stopColor="#fff8ef" />
+            <stop offset=".3" stopColor="#988a9a" />
+            <stop offset=".48" stopColor="#f4e9ed" />
+            <stop offset=".7" stopColor="#716370" />
+            <stop offset="1" stopColor="#eed6d3" />
+          </linearGradient>
+          <linearGradient id="lenses" x1="0" y1="0" x2="0" y2="1">
+            <stop stopColor="#0e0710" />
+            <stop offset=".6" stopColor="#291427" />
+            <stop offset="1" stopColor="#4f2a43" />
+          </linearGradient>
+          <linearGradient id="heart-shine" x1="0" y1="0" x2="1" y2="1">
+            <stop stopColor="#ffe1d3" stopOpacity=".9" />
+            <stop offset="1" stopColor="#ffd2cb" stopOpacity="0" />
+          </linearGradient>
         </defs>
-        <g className="petals">
-          {Array.from({ length: 8 }, (_, i) => (
-            <ellipse
-              key={i}
-              cx="90"
-              cy="49"
-              rx="24"
-              ry="43"
-              fill="url(#petal)"
-              transform={`rotate(${i * 45} 90 90)`}
+        <ellipse cx="94" cy="157" rx="46" ry="7" fill="#120610" opacity=".35" />
+        <g className="heart-body">
+          <path
+            d="M91 47C75 19 33 26 25 55C15 94 48 122 92 149C135 119 166 92 156 56C148 25 108 21 91 47Z"
+            fill="url(#ruby)"
+            stroke="#e199a4"
+            strokeOpacity=".3"
+          />
+          <path
+            d="M34 58C39 36 64 31 77 44C57 36 43 48 38 68"
+            fill="url(#heart-shine)"
+          />
+          <path
+            d="M134 47C148 63 144 80 135 92"
+            stroke="#f38c9f"
+            strokeWidth="2"
+            strokeLinecap="round"
+            opacity=".3"
+          />
+          <g className="shades">
+            <path
+              d="M29 66L77 72L75 88C73 99 47 99 40 86Z"
+              fill="url(#lenses)"
+              stroke="url(#chrome)"
+              strokeWidth="3"
             />
-          ))}
+            <path
+              d="M150 64L103 72L105 88C108 99 133 97 139 83Z"
+              fill="url(#lenses)"
+              stroke="url(#chrome)"
+              strokeWidth="3"
+            />
+            <path
+              d="M77 76Q91 70 103 76"
+              stroke="url(#chrome)"
+              strokeWidth="3"
+            />
+            <path
+              className="lens-glint"
+              d="M42 75L58 80M115 80L132 74"
+              stroke="#f3dce4"
+              strokeOpacity=".35"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </g>
+          <path
+            d="M79 110Q85 106 91 110Q97 106 103 110Q92 123 79 110Z"
+            fill="#e9929f"
+          />
+          <path d="M82 111Q91 114 100 111" stroke="#70203d" strokeWidth="1.2" />
+          <path
+            d="M87 109L91 110"
+            stroke="#ffe2d6"
+            strokeOpacity=".7"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
         </g>
-        <circle cx="90" cy="90" r="36" fill="#f2d7bf" />
         <path
-          d="M77 84v3m26-3v3"
-          stroke="#6e2633"
-          strokeWidth="5"
-          strokeLinecap="round"
+          className="chrome-star star-one"
+          d="M150 15L154 27L166 31L154 35L150 47L146 35L134 31L146 27Z"
+          fill="url(#chrome)"
         />
         <path
-          d="M78 99q12 13 24 0"
-          stroke="#6e2633"
-          strokeWidth="3"
-          strokeLinecap="round"
-          fill="none"
+          className="chrome-star star-two"
+          d="M24 113L28 124L39 128L28 132L24 143L20 132L9 128L20 124Z"
+          fill="url(#chrome)"
         />
+        <circle cx="157" cy="119" r="2" fill="#ead0d9" opacity=".7" />
       </svg>
-      <span className="floating-spark one">✦</span>
-      <span className="floating-spark two">✧</span>
     </div>
   );
 }
@@ -327,7 +386,7 @@ function App() {
         hour < 22 &&
         Date.now() - waterNudgeAt.current >= waterInterval * 60000
       ) {
-        setToast("A little water break? A sip, a stretch, a reset.");
+        setToast("A little water break? Water break");
         waterNudgeAt.current = Date.now();
       }
     }, 60000);
@@ -390,7 +449,7 @@ function App() {
       await refresh();
       setQuick(null);
       setToast(
-        `${kind === "task" ? "Task" : kind[0].toUpperCase() + kind.slice(1)} saved. One less thing to hold in your head.`,
+        `${kind === "task" ? "Task" : kind[0].toUpperCase() + kind.slice(1)} saved. `,
       );
     } catch {
       setToast("Could not save. Please try again.");
@@ -403,7 +462,7 @@ function App() {
       await staticPost("/notes", { text: noteDraft.trim() });
       await refresh();
       setNoteDraft("");
-      setToast("Thought captured. ✦");
+      setToast("Note saved.");
     } catch {
       setToast("Could not save your note.");
     }
@@ -455,7 +514,7 @@ function App() {
     );
     setToast(
       next.includes(text)
-        ? "A little kindness, saved."
+        ? "Affirmation saved."
         : "Removed from saved affirmations.",
     );
   }
@@ -534,7 +593,7 @@ function App() {
     return (
       <main className="loading-screen">
         <span className="brand-mark">a.</span>
-        <p>{error || "A little space for your day…"}</p>
+        <p>{error || "Loading my workspace…"}</p>
       </main>
     );
   const currentPage = pages.find((p) => p.id === view);
@@ -550,12 +609,6 @@ function App() {
     day: "numeric",
     timeZone: "Asia/Kolkata",
   });
-  const greeting =
-    new Date().getHours() < 12
-      ? "Good morning"
-      : new Date().getHours() < 18
-        ? "Good afternoon"
-        : "Good evening";
   const filteredNotes = data.notes.filter((n) =>
     n.text.toLowerCase().includes(notesFilter.toLowerCase()),
   );
@@ -577,9 +630,7 @@ function App() {
                     staticPatch(`/checkins/${task.id}`, {
                       markDone: !task.isDoneToday,
                     }),
-                  task.isDoneToday
-                    ? "Task reopened."
-                    : "A small win. It counts. ✦",
+                  task.isDoneToday ? "Task reopened." : "Done. Nice.",
                 )
               }
             >
@@ -604,8 +655,8 @@ function App() {
       ) : (
         <Empty
           icon="check"
-          title="A fresh page. A little possibility."
-          detail="Add one thing you want to make room for today."
+          title="Nothing on the list yet."
+          detail="Add a task when you’re ready."
         />
       )}
     </div>
@@ -614,24 +665,22 @@ function App() {
     <section className="card affirmation-card">
       <div className="card-top">
         <span className="eyebrow">
-          <Icon name="spark" /> A little reminder
+          <Icon name="spark" /> A note to myself
         </span>
-        <span className="small-pill">FOR YOU</span>
+        <span className="small-pill">DAILY AFFIRMATION</span>
       </div>
       <div className="affirmation-content">
         <div>
           <p className="affirmation-quote" key={affirmation}>
             {affirmation}
           </p>
-          <span className="affirmation-caption">
-            Read it slowly. Let it land.
-          </span>
+          <span className="affirmation-caption">Yeah. Remember that.</span>
         </div>
-        <Blossom happy={completed > 0} />
+        <HeartCharm happy={completed > 0} />
       </div>
       <div className="affirmation-footer">
         <button className="text-button" onClick={anotherAffirmation}>
-          <Icon name="refresh" /> Another thought
+          <Icon name="refresh" /> Next affirmation
         </button>
         <button
           className={`icon-button favorite ${favorites.includes(affirmation) ? "selected" : ""}`}
@@ -699,7 +748,7 @@ function App() {
         >
           <span className="brand-mark">a.</span>
           <span>
-            personal assistant<small>YOUR LITTLE UNIVERSE</small>
+            personal assistant<small>MY SPACE</small>
           </span>
         </a>
         <button className="sidebar-search" onClick={() => setCommand(true)}>
@@ -729,9 +778,9 @@ function App() {
           <div className="sidebar-nudge">
             <span>✦</span>
             <p>
-              Less in your head.
+              Big plans.
               <br />
-              More room for you.
+              My rules.
             </p>
           </div>
           <button className="user-switch" onClick={() => setAiSetup(true)}>
@@ -794,42 +843,24 @@ function App() {
               <p className="eyebrow">
                 {view === "today" ? todayDate : "MY WORKSPACE"}
               </p>
-              <h1>
-                {view === "today" ? (
-                  <>
-                    {greeting}
-                    <span className="title-dot">.</span>
-                    <span className="heading-star">✳</span>
-                  </>
-                ) : (
-                  <>
-                    {currentPage.name}
-                    <span className="title-dot">.</span>
-                  </>
-                )}
-              </h1>
+              <h1>{view === "today" ? "Hey, Eeshita." : currentPage.name}</h1>
               <p className="page-subtitle">
                 {
                   {
-                    today:
-                      "A little structure. A little kindness. A day that feels like you.",
-                    planner:
-                      "Make a little room for what matters. Edit your page, your way.",
-                    notes:
-                      "Messy thoughts welcome. Catch them here, make sense of them later.",
-                    projects:
-                      "Big ideas, broken into things you can actually do.",
+                    today: "What’s on the list today?",
+                    planner: "Plans for today and the week.",
+                    notes: "Things I don’t want to forget.",
+                    projects: "What I’m working on.",
                     assistant:
-                      "A space to think out loud, find clarity, and get a little help.",
-                    affirmations:
-                      "A softer voice in your day. Keep the words that feel like yours.",
+                      "Somewhere to ask questions and work things out.",
+                    affirmations: "For when I need to hear it.",
                   }[view]
                 }
               </p>
             </div>
             {view === "today" && (
               <div className="mood-picker">
-                <span>How’s your headspace?</span>
+                <span>How are you feeling?</span>
                 <div>
                   {[
                     { icon: "☀", name: "Bright" },
@@ -858,15 +889,12 @@ function App() {
                 <section className="card assistant-launcher">
                   <div className="card-top">
                     <span className="eyebrow">
-                      <Icon name="spark" /> Your second brain
+                      <Icon name="spark" /> Assistant
                     </span>
                     <span className="ai-pill">AI</span>
                   </div>
-                  <h2>
-                    A little help.
-                    <br />A lot more headspace.
-                  </h2>
-                  <p>Turn a tangled thought into a next step.</p>
+                  <h2>Need a hand?</h2>
+                  <p>Ask a question. Get some help.</p>
                   <button
                     className="assistant-input"
                     onClick={() => navigate("assistant")}
@@ -891,7 +919,7 @@ function App() {
                         )
                       }
                     >
-                      Untangle a thought ↗
+                      Talk it through ↗
                     </button>
                   </div>
                 </section>
@@ -904,10 +932,9 @@ function App() {
                         <Icon name="check" />
                       </span>
                       <div>
-                        <h2>Today’s little wins</h2>
+                        <h2>To-do</h2>
                         <p>
-                          {completed} of {tasks.length} done · one step at a
-                          time
+                          {completed} of {tasks.length} done
                         </p>
                       </div>
                     </div>
@@ -924,7 +951,7 @@ function App() {
                   </div>
                   {taskList}
                   <button className="add-row" onClick={() => openQuick("task")}>
-                    <Icon name="plus" /> Add a little win
+                    <Icon name="plus" /> Add a task
                   </button>
                 </section>
                 <section className="card scratch-card">
@@ -934,26 +961,26 @@ function App() {
                         <Icon name="note" />
                       </span>
                       <div>
-                        <h2>Brain dump</h2>
-                        <p>No need to make it pretty.</p>
+                        <h2>Quick notes</h2>
+                        <p>Before I forget.</p>
                       </div>
                     </div>
-                    <span className="handwritten">just let it out ↙</span>
+                    <span className="handwritten">write it down ↙</span>
                   </div>
                   <form onSubmit={addNote}>
                     <textarea
-                      aria-label="Brain dump"
+                      aria-label="Quick notes"
                       placeholder="An idea, a grocery list, that thing you keep forgetting…"
                       value={noteDraft}
                       onChange={(e) => setNoteDraft(e.target.value)}
                     />
                     <div className="scratch-footer">
-                      <span>Thoughts become notes.</span>
+                      <span>Saved in Notes.</span>
                       <button
                         className="button secondary"
                         disabled={!noteDraft.trim()}
                       >
-                        <Icon name="plus" /> Keep this thought
+                        <Icon name="plus" /> Save note
                       </button>
                     </div>
                   </form>
@@ -966,7 +993,7 @@ function App() {
                       </span>
                       <div>
                         <h2>Your pages</h2>
-                        <p>A home for everything in motion.</p>
+                        <p>Plans, projects, notes.</p>
                       </div>
                     </div>
                     <button
@@ -982,7 +1009,7 @@ function App() {
                         <Icon name="calendar" />
                       </span>
                       <span>
-                        Daily rhythm<small>Your day, in your own words</small>
+                        Daily plan<small>Open my planner</small>
                       </span>
                       <Icon name="arrow" />
                     </button>
@@ -991,7 +1018,7 @@ function App() {
                         <Icon name="grid" />
                       </span>
                       <span>
-                        Things in motion
+                        Projects
                         <small>
                           {activeProjects.length} active project
                           {activeProjects.length === 1 ? "" : "s"}
@@ -1004,7 +1031,7 @@ function App() {
                         <Icon name="note" />
                       </span>
                       <span>
-                        Collected thoughts
+                        Notes
                         <small>
                           {data.notes.length} saved note
                           {data.notes.length === 1 ? "" : "s"}
@@ -1017,7 +1044,7 @@ function App() {
                 <section className="card focus-card">
                   <div className="card-top">
                     <span className="eyebrow">
-                      <Icon name="clock" /> A pocket of focus
+                      <Icon name="clock" /> Focus timer
                     </span>
                     <button
                       className="icon-button"
@@ -1043,10 +1070,10 @@ function App() {
                   <div className="focus-bottom">
                     <span>
                       {focusRunning
-                        ? "One thing. Right now."
+                        ? "Focus session running."
                         : focusSeconds === 0
-                          ? "You showed up. Take a breath."
-                          : "One thing at a time is enough."}
+                          ? "Done. Time for a break."
+                          : "25 minutes. No distractions."}
                     </span>
                     <button className="button secondary" onClick={toggleFocus}>
                       <Icon name={focusRunning ? "pause" : "play"} />
@@ -1054,7 +1081,7 @@ function App() {
                         ? "Pause"
                         : focusSeconds === 0
                           ? "Again?"
-                          : "Let’s focus"}
+                          : "Start"}
                     </button>
                   </div>
                 </section>
@@ -1074,7 +1101,7 @@ function App() {
                     ))}
                   </div>
                 ) : (
-                  <p>A clear horizon. Add a reminder for your future self.</p>
+                  <p>No upcoming reminders.</p>
                 )}
                 <button
                   className="text-button"
@@ -1112,9 +1139,9 @@ function App() {
                 <div className="editor-heading">
                   <span>{period === "daily" ? "☀" : "▦"}</span>
                   <h2>
-                    {period === "daily" ? "My daily rhythm" : "The week ahead"}
+                    {period === "daily" ? "My daily plan" : "The week ahead"}
                   </h2>
-                  <p>A living page. Make it yours.</p>
+                  <p>Write a plan that works for you.</p>
                 </div>
                 <textarea
                   aria-label={`${period} planner`}
@@ -1128,10 +1155,7 @@ function App() {
                   placeholder="Start with one thing…"
                 />
                 <div className="editor-footer">
-                  <span>
-                    Tip: use • for lists, or leave room for a little
-                    spontaneity.
-                  </span>
+                  <span>Use • for a list, or just start typing.</span>
                   <button
                     className="button primary"
                     onClick={savePlan}
@@ -1198,7 +1222,7 @@ function App() {
                 </section>
                 <section className="card hydration-card">
                   <Icon name="drop" />
-                  <h2>A sip, a stretch, a reset.</h2>
+                  <h2>Water break</h2>
                   <p>
                     Water nudges every {data.waterSettings.intervalMinutes}{" "}
                     minutes, 8am–10pm IST.
@@ -1233,7 +1257,7 @@ function App() {
                   <Icon name="search" />
                   <input
                     aria-label="Search notes"
-                    placeholder="Find a thought…"
+                    placeholder="Search notes…"
                     value={notesFilter}
                     onChange={(e) => setNotesFilter(e.target.value)}
                   />
@@ -1251,15 +1275,11 @@ function App() {
                 <section className="card roomy-empty">
                   <Empty
                     icon="note"
-                    title={
-                      notesFilter
-                        ? "No thoughts match that search."
-                        : "Your thoughts deserve a little space."
-                    }
+                    title={notesFilter ? "No notes found." : "No notes yet."}
                     detail={
                       notesFilter
                         ? "Try a different word."
-                        : "Create a note. Write freely. Edit whenever you like."
+                        : "Add a note, then edit it here."
                     }
                   />
                   {!notesFilter && (
@@ -1267,7 +1287,7 @@ function App() {
                       className="button primary"
                       onClick={() => openQuick("note")}
                     >
-                      <Icon name="plus" /> Capture a thought
+                      <Icon name="plus" /> Add a note
                     </button>
                   )}
                 </section>
@@ -1296,9 +1316,9 @@ function App() {
                       <h2>
                         {
                           {
-                            active: "In motion",
-                            paused: "On the back burner",
-                            completed: "Look what you did",
+                            active: "In progress",
+                            paused: "On hold",
+                            completed: "Done",
                           }[status]
                         }
                       </h2>
@@ -1315,10 +1335,7 @@ function App() {
                         <article className="card project-tile" key={project.id}>
                           <Icon name="grid" />
                           <h3>{project.name}</h3>
-                          <p>
-                            {project.detail ||
-                              "A little idea with room to grow."}
-                          </p>
+                          <p>{project.detail || "No description yet."}</p>
                           <div className="project-tile-footer">
                             <span className={`status-tag ${status}`}>
                               {status}
@@ -1340,7 +1357,7 @@ function App() {
                                   )
                                 }
                               >
-                                <option value="active">In motion</option>
+                                <option value="active">In progress</option>
                                 <option value="paused">Pause</option>
                                 <option value="completed">Complete</option>
                               </select>
@@ -1376,8 +1393,8 @@ function App() {
               <div>
                 {affirmationCard}
                 <section className="card custom-affirmation">
-                  <h2>In your own words.</h2>
-                  <p>Sometimes you know exactly what you need to hear.</p>
+                  <h2>My own affirmation</h2>
+                  <p>Write one that sounds like you.</p>
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -1407,7 +1424,7 @@ function App() {
               </div>
               <section className="card saved-affirmations">
                 <div className="card-top">
-                  <h2>Words worth keeping</h2>
+                  <h2>Saved affirmations</h2>
                   <span className="small-pill">{favorites.length} SAVED</span>
                 </div>
                 {favorites.length ? (
@@ -1426,8 +1443,8 @@ function App() {
                 ) : (
                   <Empty
                     icon="heart"
-                    title="Keep a little kindness here."
-                    detail="Tap the heart on a thought that speaks to you."
+                    title="No saved affirmations yet."
+                    detail="Tap the heart to save one."
                   />
                 )}
               </section>
@@ -1440,7 +1457,7 @@ function App() {
                   <Icon name="spark" />
                 </span>
                 <div>
-                  <h2>Your thinking partner</h2>
+                  <h2>Assistant</h2>
                   <p>
                     {aiConfigured && accessToken
                       ? "Ready when you are"
@@ -1467,21 +1484,17 @@ function App() {
                     <span className="welcome-spark">
                       <Icon name="spark" />
                     </span>
-                    <h2>
-                      Hey. What’s taking up
-                      <br />
-                      space in your head?
-                    </h2>
+                    <h2>What are we working on?</h2>
                     <p>
-                      A plan, a half-formed idea, a day that needs a reset.
+                      Questions, plans, or something you’re stuck on.
                       <br />
-                      Start anywhere.
+                      Ask away.
                     </p>
                     <div className="chat-suggestions">
                       {[
                         "Help me plan a realistic day.",
                         "Help me turn an idea into a project.",
-                        "Write me a gentle affirmation.",
+                        "Write me a confident affirmation.",
                       ].map((prompt) => (
                         <button
                           key={prompt}
@@ -1517,7 +1530,7 @@ function App() {
                 <textarea
                   aria-label="Message assistant"
                   rows="2"
-                  placeholder="Let’s make a little sense of it…"
+                  placeholder="What do you want help with?"
                   value={aiPrompt}
                   onChange={(e) => setAiPrompt(e.target.value)}
                   onKeyDown={(e) => {
@@ -1560,9 +1573,9 @@ function App() {
           )}
           <footer className="page-footer">
             <span>
-              <i /> A little space for everything.
+              <i /> My space.
             </span>
-            <span>Made for real days. Not perfect ones. ✦</span>
+            <span>On my terms. ♡</span>
           </footer>
         </main>
       </div>
@@ -1653,11 +1666,7 @@ function App() {
                 <span className="modal-emblem">
                   <Icon name="spark" />
                 </span>
-                <h2>
-                  A little intelligence.
-                  <br />
-                  Your own connection.
-                </h2>
+                <h2>Connect AI</h2>
                 <p>
                   {aiConfigured
                     ? "Your AI service is connected. Enter your workspace access code to start chatting."
@@ -1717,14 +1726,14 @@ function App() {
                 <h2>
                   {
                     {
-                      task: "A little win to work toward.",
-                      note: "Catch that thought.",
-                      project: "Give an idea a home.",
-                      reminder: "For your future self.",
+                      task: "Add a task",
+                      note: "Add a note",
+                      project: "New project",
+                      reminder: "Set a reminder",
                     }[quick]
                   }
                 </h2>
-                <p>Less to hold in your head. More room to think.</p>
+                <p>Save it here.</p>
                 <div className="capture-tabs">
                   {["task", "note", "project", "reminder"].map((kind) => (
                     <button
@@ -1741,7 +1750,7 @@ function App() {
                     {quick === "project"
                       ? "Project name"
                       : quick === "note"
-                        ? "Your thought"
+                        ? "Your note"
                         : "What is it?"}
                     {quick === "note" ? (
                       <textarea
@@ -1750,7 +1759,7 @@ function App() {
                         onChange={(e) =>
                           setForm({ ...form, text: e.target.value })
                         }
-                        placeholder="It can be a little messy."
+                        placeholder="Write anything."
                       />
                     ) : (
                       <input
@@ -1761,23 +1770,23 @@ function App() {
                         }
                         placeholder={
                           quick === "task"
-                            ? "One small thing…"
+                            ? "What needs doing?"
                             : quick === "project"
-                              ? "That thing you’ve been thinking about…"
-                              : "Something to come back to…"
+                              ? "Project name"
+                              : "What should I remind you about?"
                         }
                       />
                     )}
                   </label>
                   {quick === "project" && (
                     <label className="form-label">
-                      A little context <span>(optional)</span>
+                      Description <span>(optional)</span>
                       <textarea
                         value={form.detail}
                         onChange={(e) =>
                           setForm({ ...form, detail: e.target.value })
                         }
-                        placeholder="An idea, a next step, a reason why."
+                        placeholder="A short description or next step."
                       />
                     </label>
                   )}
