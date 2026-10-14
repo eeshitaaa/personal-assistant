@@ -1,2 +1,73 @@
-:root{color-scheme:dark;--bg:#14080b;--surface:#2a0710;--ink:#f0dfd2;--paper:#f6e2d0;--muted:#b89381;--accent:#8d1d31;--line:#ffe8d31c;--font-display:'Iowan Old Style','Baskerville',Georgia,serif;--font-body:'Avenir Next','Segoe UI','Helvetica Neue',sans-serif;font-family:var(--font-body);font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;color:var(--ink);background:var(--bg)}
-*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:28px}body{margin:0;min-width:320px}button,input,textarea{font:inherit}button,a,input,textarea{-webkit-tap-highlight-color:transparent}a{color:inherit}button{cursor:pointer}#root{min-height:100vh}::selection{background:#8d1d31;color:#f6e2d0}:focus-visible{outline:2px solid #d8a68c;outline-offset:4px}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+:root {
+  color-scheme: dark;
+  --bg: #17090d;
+  --surface: #280e15;
+  --ink: #f0ddd0;
+  --cream: #f3ddc4;
+  --muted: #b8998b;
+  --dim: #927267;
+  --line: #e8bda019;
+  --wine: #8d3049;
+  --font-body: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-display: "Iowan Old Style", "Baskerville", Georgia, serif;
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+  background: var(--bg);
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button,
+a,
+input,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+a {
+  color: inherit;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+::selection {
+  background: #8d3049;
+  color: #fff1e0;
+}
+:focus-visible {
+  outline: 2px solid #e5b998;
+  outline-offset: 4px;
+}
+#root {
+  min-height: 100vh;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
