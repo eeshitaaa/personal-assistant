@@ -329,12 +329,18 @@ function App() {
 
   return (
     <main className="shell">
+      <header className="workspace-header">
+        <a className="brand" href="#home"><span className="brand-symbol">a.</span><span>personal assistant<span className="brand-caption">A LITTLE SPACE FOR EVERYTHING.</span></span></a>
+        <nav aria-label="Workspace navigation"><a className="active" href="#home">Overview</a><a href="#planner">My planner</a><a href="#projects">Projects</a></nav>
+        <span className="workspace-badge"><i /> Your private workspace</span>
+      </header>
+      <div className="page-intro" id="home"><span>YOUR EVERYDAY, CONSIDERED.</span><span>{state.briefing.dayLabel} <span className="intro-dot">·</span> IST</span></div>
       <section className="hero panel lift">
         <div className="hero-copy">
-          <p className="eyebrow">Private Assistant</p>
-          <h1>{greeting}. What needs my attention first?</h1>
+          <p className="eyebrow"><span className="tiny-star">✳</span> A clearer kind of day</p>
+          <h1>{greeting}.<br /><em>Make room for<br />what matters.</em></h1>
           <p className="lede">
-            Ask something, add a reminder, or check what still needs to get done today.
+            A place for your plans, passing thoughts, and the things you want to come back to.
           </p>
           <div className="assistant-strip">
             <div className="assistant-chip">
@@ -350,24 +356,10 @@ function App() {
           </div>
         </div>
         <div className="hero-board">
-          <div className="polaroid tall">
-            <span className="pin" />
-            <p>Current quote</p>
-            <strong>{state.briefing.dayLabel}</strong>
-            <small>{currentQuote.text}</small>
-          </div>
-          <div className="polaroid">
-            <span className="pin olive" />
-            <p>Today</p>
-            <strong>{state.briefing.summary}</strong>
-            <small>{state.stats.todaysReminders} reminder(s), {state.stats.openCheckins} open check-in(s).</small>
-          </div>
-          <div className="swatch-card">
-            <span className="swatch clay" />
-            <span className="swatch moss" />
-            <span className="swatch oat" />
-            <span className="swatch ink" />
-          </div>
+          <div className="orbital-art" aria-hidden="true"><span /><span /><span /><div className="orbit-core" /></div>
+          <div className="board-topline"><span>THE DAILY PERSPECTIVE</span><span>↗</span></div>
+          <div className="board-quote"><span className="quote-mark">“</span><blockquote>{currentQuote.text}</blockquote><span className="board-source">{currentQuote.source}</span></div>
+          <div className="board-bottomline"><span>A small thought. A little momentum.</span><span>01 / TODAY</span></div>
         </div>
       </section>
 
@@ -375,7 +367,7 @@ function App() {
         <div className="search-band-head">
           <div>
             <p className="section-tag">Search</p>
-            <h2>Ask a question, compare sources, then open the one you want.</h2>
+            <h2>A little curiosity goes a long way.</h2>
           </div>
           {searchResult && (
             <button className="ghost close-search" onClick={clearSearch}>Close search</button>
@@ -387,7 +379,7 @@ function App() {
             onChange={(event) => setDraft((current) => ({ ...current, searchQuery: event.target.value }))}
             placeholder="Ask a question, search a link, check a timing"
           />
-          <button className="primary" onClick={handleSearch}>Search</button>
+          <button className="primary" onClick={handleSearch}>Explore <span aria-hidden="true">↗</span></button>
         </div>
         {searchResult && (
           <div className="search-result hero-result">
@@ -443,6 +435,7 @@ function App() {
         )}
       </section>
 
+      <div className="section-heading"><h2>The shape of today</h2><span>A little structure, a little breathing room.</span></div>
       <section className="grid overview-grid">
         <article className="panel note-card">
           <p className="section-tag">Today at a glance</p>
@@ -470,7 +463,7 @@ function App() {
 
         <article className="panel reminder-card compact-card">
           <p className="section-tag">Add reminder</p>
-          <h2>Save something for later.</h2>
+          <h2>For your future self.</h2>
           <div className="field-row">
             <input
               value={draft.reminderText}
@@ -478,6 +471,7 @@ function App() {
               placeholder="Call, leave, submit, pick up"
             />
             <input
+              aria-label="Reminder date and time"
               type="datetime-local"
               value={draft.reminderAt}
               onChange={(event) => setDraft((current) => ({ ...current, reminderAt: event.target.value }))}
@@ -487,10 +481,11 @@ function App() {
         </article>
       </section>
 
+      <div className="section-heading" id="planner"><h2>Your personal space</h2><span>Keep the useful things close.</span></div>
       <section className="grid main-grid">
         <article className="panel checkin-card">
           <p className="section-tag">Daily check-ins</p>
-          <h2>These stay here until you mark them done today.</h2>
+          <h2>Small rituals. Steady progress.</h2>
           <div className="field-row">
             <input
               value={draft.checkinText}
@@ -498,6 +493,7 @@ function App() {
               placeholder="Take vitamins, revise notes, reply to messages"
             />
             <input
+              aria-label="Check-in time"
               type="time"
               value={draft.checkinTime}
               onChange={(event) => setDraft((current) => ({ ...current, checkinTime: event.target.value }))}
@@ -505,6 +501,7 @@ function App() {
           </div>
           <button className="primary" onClick={handleCheckinSave}>Add check-in</button>
           <div className="stack-list">
+            {!state.checkins.length && <div className="empty-state"><span>✓</span><p>A fresh start, every day.</p><small>Add a ritual you want to make time for.</small></div>}
             {state.checkins.map((item) => (
               <div className={`list-card ${item.isDoneToday ? 'done-card' : ''}`} key={item.id}>
                 <div>
@@ -523,9 +520,10 @@ function App() {
         </article>
 
         <article className="panel daily-card">
-          <p className="section-tag">Daily map</p>
-          <h2>Your day template with time slots already started.</h2>
+          <p className="section-tag">Daily rhythm</p>
+          <h2>Give your day a rhythm.</h2>
           <textarea
+            aria-label="Daily plan"
             value={draft.dailyPlan}
             onChange={(event) => setDraft((current) => ({ ...current, dailyPlan: event.target.value }))}
           />
@@ -533,9 +531,10 @@ function App() {
         </article>
 
         <article className="panel weekly-card">
-          <p className="section-tag">Weekly map</p>
-          <h2>Your standing anchors across the week.</h2>
+          <p className="section-tag">Week ahead</p>
+          <h2>See the bigger picture.</h2>
           <textarea
+            aria-label="Weekly plan"
             value={draft.weeklyPlan}
             onChange={(event) => setDraft((current) => ({ ...current, weeklyPlan: event.target.value }))}
           />
@@ -544,7 +543,7 @@ function App() {
 
         <article className="panel quote-card">
           <p className="section-tag">Quote</p>
-          <h2>Pick the line you want to keep close today.</h2>
+          <h2>Words to carry with you.</h2>
           <blockquote>{currentQuote.text}</blockquote>
           <p className="source-line">Source: {currentQuote.source}</p>
           <div className="action-row">
@@ -552,10 +551,12 @@ function App() {
           </div>
           <div className="field-stack">
             <input
+              aria-label="Custom quote" placeholder="A line worth remembering"
               value={draft.customQuote}
               onChange={(event) => setDraft((current) => ({ ...current, customQuote: event.target.value }))}
             />
             <input
+              aria-label="Quote source" placeholder="Author or source"
               value={draft.customQuoteSource}
               onChange={(event) => setDraft((current) => ({ ...current, customQuoteSource: event.target.value }))}
             />
@@ -577,8 +578,8 @@ function App() {
         </article>
 
         <article className="panel notes-card">
-          <p className="section-tag">Sticky notes</p>
-          <h2>Loose thoughts that should stay visible.</h2>
+          <p className="section-tag">Notes & thoughts</p>
+          <h2>Before the thought slips away.</h2>
           <div className="field-row single">
             <input
               value={draft.noteText}
@@ -588,6 +589,7 @@ function App() {
           </div>
           <button className="primary" onClick={addNote}>Add note</button>
           <div className="notes-grid">
+            {!state.notes.length && <div className="empty-state"><span>✎</span><p>Room for a passing thought.</p><small>Your notes will find a home here.</small></div>}
             {state.notes.map((note) => (
               <div className="sticky-note" key={note.id}>
                 <p>{note.text}</p>
@@ -597,9 +599,9 @@ function App() {
           </div>
         </article>
 
-        <article className="panel projects-card">
+        <article className="panel projects-card" id="projects">
           <p className="section-tag">Projects</p>
-          <h2>Things in motion that you want tracked here.</h2>
+          <h2>From idea to underway.</h2>
           <div className="field-stack">
             <input
               value={draft.projectName}
@@ -614,6 +616,7 @@ function App() {
             <button className="primary" onClick={addProject}>Add project</button>
           </div>
           <div className="stack-list">
+            {!state.projects.length && <div className="empty-state"><span>↗</span><p>Something good starts here.</p><small>Add the next thing you’re working on.</small></div>}
             {state.projects.map((project) => (
               <div className="list-card" key={project.id}>
                 <div>
@@ -638,7 +641,7 @@ function App() {
 
         <article className="panel calendar-card">
           <p className="section-tag">Calendar</p>
-          <h2>Show events here once Google Calendar is connected.</h2>
+          <h2>Everything, in its own time.</h2>
           <p className="briefing-copy">{state.calendar.message}</p>
           <div className="stack-list">
             {state.calendar.connectSteps.map((step) => (
@@ -652,8 +655,8 @@ function App() {
         </article>
 
         <article className="panel water-card">
-          <p className="section-tag">Water reminders</p>
-          <h2>Background nudges between 8am and 10pm IST.</h2>
+          <p className="section-tag">Stay hydrated</p>
+          <h2>A moment to replenish.</h2>
           <div className="water-controls">
             <button
               className="ghost"
@@ -691,15 +694,16 @@ function App() {
           </div>
           <p className="microcopy">
             {state.waterSettings.paused
-              ? 'Water reminders are paused right now.'
+              ? 'Stay hydrated are paused right now.'
               : `Currently nudging every ${state.waterSettings.intervalMinutes} minutes.`}
           </p>
         </article>
 
         <article className="panel reminder-list-card">
           <p className="section-tag">Saved reminders</p>
-          <h2>Everything you have asked me to remember.</h2>
+          <h2>Consider it remembered.</h2>
           <div className="stack-list">
+            {!state.reminders.length && <div className="empty-state"><span>◷</span><p>A little breathing room.</p><small>Your saved reminders will appear here.</small></div>}
             {state.reminders.map((reminder) => (
               <div className="list-card" key={reminder.id}>
                 <div>
