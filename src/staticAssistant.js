@@ -1,6 +1,7 @@
+import { normalizeActivity } from "./schedule.js";
 const STORAGE_KEY = "personal-assistant-static-v1";
 
-const DEFAULT_DAILY_PLAN = `7:00 AM
+const LEGACY_DAILY_PLAN = `7:00 AM
 8:00 AM
 9:00 AM
 11:00 AM
@@ -9,6 +10,8 @@ const DEFAULT_DAILY_PLAN = `7:00 AM
 5:00 PM
 7:00 PM
 9:00 PM`;
+
+const DEFAULT_DAILY_PLAN = "";
 
 const DEFAULT_WEEKLY_PLAN = `Monday
 - 
@@ -85,6 +88,7 @@ function readStore() {
         created_at: now().toISOString(),
       },
     ],
+    activities: [],
     notes: [],
     projects: [],
     permissions: { calendar: false, web: false, llm: false, quotes: false },
@@ -117,6 +121,7 @@ function withDerived(store) {
   }));
   return {
     ...store,
+    activities: store.activities || [],
     reminders,
     checkins,
     calendar: {
@@ -190,12 +195,31 @@ function rotateQuote(store, force = false) {
 
 export async function loadStaticState() {
   const store = rotateQuote(readStore(), false);
+  if (store.routines.daily.content === LEGACY_DAILY_PLAN) {
+    store.routines.daily = {
+      ...store.routines.daily,
+      content: DEFAULT_DAILY_PLAN,
+    };
+  }
+  store.activities ??= [];
   writeStore(store);
   return withDerived(store);
 }
 
 export async function staticPost(path, body) {
   let store = readStore();
+
+  if (path === "/activities") {
+    store.activities ??= [];
+    store.activities.push({
+      id: crypto.randomUUID(),
+      ...normalizeActivity(body),
+      completedDates: [],
+      createdAt: now().toISOString(),
+    });
+    writeStore(store);
+    return { message: "Activity added." };
+  }
 
   if (path === "/routines/daily") {
     store.routines.daily = {
@@ -305,6 +329,24 @@ export async function staticPost(path, body) {
 export async function staticPatch(path, body) {
   let store = readStore();
   const parts = path.split("/").filter(Boolean);
+  if (parts[0] === "activities") {
+    const activity = (store.activities || []).find(
+      (item) => String(item.id) === parts[1],
+    );
+    if (!activity) throw new Error("That activity could not be found.");
+    if (Object.hasOwn(body, "completedDate")) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(body.completedDate))
+        throw new Error("Choose a valid date.");
+      const dates = new Set(activity.completedDates || []);
+      if (body.done) dates.add(body.completedDate);
+      else dates.delete(body.completedDate);
+      activity.completedDates = [...dates].sort().slice(-90);
+    } else {
+      Object.assign(activity, normalizeActivity(body));
+    }
+    writeStore(store);
+    return { message: "Activity updated." };
+  }
   if (parts[0] === "checkins") {
     store.checkins = store.checkins.map((item) => {
       if (String(item.id) !== parts[1]) return item;
@@ -350,6 +392,13 @@ export async function staticPatch(path, body) {
 export async function staticDelete(path) {
   let store = readStore();
   const parts = path.split("/").filter(Boolean);
+  if (parts[0] === "activities") {
+    store.activities = (store.activities || []).filter(
+      (item) => String(item.id) !== parts[1],
+    );
+    writeStore(store);
+    return { message: "Activity removed." };
+  }
   if (parts[0] === "reminders") {
     store.reminders = store.reminders.filter(
       (item) => String(item.id) !== parts[1],

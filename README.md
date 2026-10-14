@@ -32,7 +32,7 @@ The regular Vite development server does not run Vercel functions. Use a Vercel 
 
 - Use the sidebar or `Cmd/Ctrl + K` to navigate and quickly create items.
 - Daily tasks can be completed, reopened, and removed.
-- Planner pages save explicitly; switching Daily/Weekly saves the current draft first.
+- The daily planner has timed activities with optional duration and notes. Choose every day or specific weekdays, with weekday/weekend shortcuts. Completion is tracked per calendar date in IST. Daily notes and weekly pages save explicitly; switching Daily/Weekly saves the current draft first. Untouched legacy time-only templates become a blank notes area; custom plans remain intact.
 - Notes save edits on blur. Projects move between active, paused, and completed columns.
 - Affirmations can be rotated, saved, and written in your own words.
 - Focus sessions last 25 minutes and catch up after backgrounding the tab.

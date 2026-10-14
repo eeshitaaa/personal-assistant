@@ -5,6 +5,16 @@ import {
   staticPatch,
   staticPost,
 } from "./staticAssistant";
+import {
+  DAYS,
+  COMMON_ACTIVITIES,
+  getTodayKey,
+  getWeekDays,
+  activitiesForDay,
+  repeatLabel,
+  formatPlanTime,
+  activityEndTime,
+} from "./schedule";
 import "./App.css";
 
 const pages = [
@@ -248,6 +258,22 @@ function App() {
   const [plan, setPlan] = useState("");
   const [saving, setSaving] = useState(false);
   const [planDirty, setPlanDirty] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(
+    () => getWeekDays().find((day) => day.isToday).value,
+  );
+  const [activityOpen, setActivityOpen] = useState(false);
+  const [editingActivity, setEditingActivity] = useState(null);
+  const [activityDraft, setActivityDraft] = useState({
+    title: "",
+    time: "09:00",
+    duration: 30,
+    repeat: "daily",
+    days: DAYS.map((day) => day.value),
+    detail: "",
+  });
+  const [activityError, setActivityError] = useState("");
+  const [activitySaving, setActivitySaving] = useState(false);
+  const activityTitleRef = useRef(null);
   const [affirmationIndex, setAffirmationIndex] = useState(() =>
     readPreference("assistant-affirmation-index", 0),
   );
@@ -273,6 +299,10 @@ function App() {
   const waterNudgeAt = useRef(Date.now());
   const dialogRef = useRef(null);
   const previousFocus = useRef(null);
+
+  useEffect(() => {
+    if (activityOpen) activityTitleRef.current?.focus();
+  }, [activityOpen]);
 
   async function refresh() {
     const next = await loadStaticState();
@@ -467,6 +497,58 @@ function App() {
       setToast("Could not save your note.");
     }
   }
+  function openActivity(preset = null) {
+    setEditingActivity(null);
+    setActivityDraft({
+      title: preset?.title || "",
+      time: preset?.time || "09:00",
+      duration: preset?.duration || 30,
+      repeat: "daily",
+      days: DAYS.map((day) => day.value),
+      detail: "",
+    });
+    setActivityError("");
+    setActivityOpen(true);
+  }
+  function editActivity(activity) {
+    setEditingActivity(activity.id);
+    setActivityDraft({
+      title: activity.title,
+      time: activity.time,
+      duration: activity.duration ?? "",
+      repeat: activity.days.length === 7 ? "daily" : "specific",
+      days: activity.days,
+      detail: activity.detail || "",
+    });
+    setActivityError("");
+    setActivityOpen(true);
+    activityTitleRef.current?.focus();
+  }
+  async function saveActivity(event) {
+    event.preventDefault();
+    setActivityError("");
+    setActivitySaving(true);
+    const body = {
+      ...activityDraft,
+      days:
+        activityDraft.repeat === "daily"
+          ? DAYS.map((day) => day.value)
+          : activityDraft.days,
+    };
+    try {
+      if (editingActivity)
+        await staticPatch(`/activities/${editingActivity}`, body);
+      else await staticPost("/activities", body);
+      await refresh();
+      setActivityOpen(false);
+      setToast(editingActivity ? "Activity updated." : "Added to your plan.");
+      setEditingActivity(null);
+    } catch (err) {
+      setActivityError(err.message || "Could not save your activity.");
+    } finally {
+      setActivitySaving(false);
+    }
+  }
   async function savePlan() {
     setSaving(true);
     try {
@@ -555,6 +637,7 @@ function App() {
       const context = useContext
         ? {
             dailyPlan: data.routines.daily.content,
+            activities: data.activities,
             tasks: data.checkins.map((t) => ({
               text: t.text,
               done: t.isDoneToday,
@@ -596,6 +679,19 @@ function App() {
         <p>{error || "Loading my workspace…"}</p>
       </main>
     );
+  const weekDays = getWeekDays();
+  const selectedWeekDay = weekDays.find((day) => day.value === selectedDay);
+  const todayKey = getTodayKey();
+  const actualToday = weekDays.find((day) => day.isToday);
+  const dayActivities = activitiesForDay(data.activities || [], selectedDay);
+  const todaysActivities = activitiesForDay(
+    data.activities || [],
+    actualToday.value,
+  );
+  const totalMinutes = dayActivities.reduce(
+    (total, activity) => total + (activity.duration || 0),
+    0,
+  );
   const currentPage = pages.find((p) => p.id === view);
   const tasks = data.checkins.filter((t) => t.status === "active");
   const completed = tasks.filter((t) => t.isDoneToday).length;
@@ -1086,6 +1182,41 @@ function App() {
                   </div>
                 </section>
               </div>
+              {todaysActivities.length > 0 && (
+                <section className="card dashboard-plan">
+                  <div className="card-top">
+                    <div className="card-title">
+                      <span className="tile-icon">
+                        <Icon name="calendar" />
+                      </span>
+                      <h2>Today’s plan</h2>
+                    </div>
+                    <button
+                      className="text-button"
+                      onClick={() => {
+                        setSelectedDay(actualToday.value);
+                        navigate("planner");
+                      }}
+                    >
+                      Open plan
+                      <Icon name="arrow" />
+                    </button>
+                  </div>
+                  <div>
+                    {todaysActivities.slice(0, 4).map((activity) => (
+                      <span key={activity.id}>
+                        <strong>{formatPlanTime(activity.time)}</strong>
+                        {activity.title}
+                        <small>
+                          {activity.duration
+                            ? `${activity.duration} min`
+                            : repeatLabel(activity.days)}
+                        </small>
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              )}
               <section className="reminders-strip">
                 <div>
                   <Icon name="clock" />
@@ -1143,30 +1274,474 @@ function App() {
                   </h2>
                   <p>Write a plan that works for you.</p>
                 </div>
-                <textarea
-                  aria-label={`${period} planner`}
-                  className="page-editor"
-                  value={plan}
-                  onChange={(e) => {
-                    setPlan(e.target.value);
-                    setPlanDirty(true);
-                  }}
-                  spellCheck
-                  placeholder="Start with one thing…"
-                />
-                <div className="editor-footer">
-                  <span>Use • for a list, or just start typing.</span>
-                  <button
-                    className="button primary"
-                    onClick={savePlan}
-                    disabled={saving || !planDirty}
-                  >
-                    {saving ? "Saving…" : "Save page"}
-                    <Icon name="check" />
-                  </button>
-                </div>
+                {period === "daily" ? (
+                  <>
+                    <div className="schedule-days" aria-label="Choose a day">
+                      {weekDays.map((day) => (
+                        <button
+                          key={day.value}
+                          className={`${selectedDay === day.value ? "selected" : ""} ${day.isToday ? "today" : ""}`}
+                          aria-label={`Plan for ${day.name}`}
+                          aria-pressed={selectedDay === day.value}
+                          onClick={() => setSelectedDay(day.value)}
+                        >
+                          <span>{day.short}</span>
+                          <strong>{day.dateNumber}</strong>
+                          <i />
+                        </button>
+                      ))}
+                    </div>
+                    <div className="schedule-heading">
+                      <div>
+                        <h3>
+                          {selectedWeekDay.isToday
+                            ? "Today"
+                            : selectedWeekDay.name}
+                        </h3>
+                        <span>
+                          {dayActivities.length}{" "}
+                          {dayActivities.length === 1
+                            ? "activity"
+                            : "activities"}
+                          {totalMinutes > 0
+                            ? ` · ${totalMinutes >= 60 ? `${Math.floor(totalMinutes / 60)}h ` : ""}${totalMinutes % 60 ? `${totalMinutes % 60}m` : ""} planned`
+                            : ""}
+                        </span>
+                      </div>
+                      <button
+                        className="button secondary"
+                        onClick={() => openActivity()}
+                      >
+                        <Icon name="plus" /> Add activity
+                      </button>
+                    </div>
+                    <div className="activity-presets">
+                      <span>QUICK ADD</span>
+                      <div>
+                        {COMMON_ACTIVITIES.map((preset) => (
+                          <button
+                            key={preset.title}
+                            aria-label={`Add ${preset.title}`}
+                            onClick={() => openActivity(preset)}
+                          >
+                            <Icon name={preset.icon} />
+                            {preset.title}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {activityOpen && (
+                      <form className="activity-form" onSubmit={saveActivity}>
+                        <div className="activity-form-top">
+                          <h3>
+                            {editingActivity
+                              ? "Edit activity"
+                              : "Add to my plan"}
+                          </h3>
+                          <button
+                            type="button"
+                            className="icon-button"
+                            aria-label="Close activity form"
+                            onClick={() => setActivityOpen(false)}
+                          >
+                            <Icon name="close" />
+                          </button>
+                        </div>
+                        <label className="form-label">
+                          Activity
+                          <input
+                            ref={activityTitleRef}
+                            required
+                            maxLength="200"
+                            placeholder="What are you planning?"
+                            value={activityDraft.title}
+                            onChange={(event) =>
+                              setActivityDraft({
+                                ...activityDraft,
+                                title: event.target.value,
+                              })
+                            }
+                          />
+                        </label>
+                        <div className="activity-time-fields">
+                          <label className="form-label">
+                            Start time
+                            <input
+                              type="time"
+                              required
+                              value={activityDraft.time}
+                              onChange={(event) =>
+                                setActivityDraft({
+                                  ...activityDraft,
+                                  time: event.target.value,
+                                })
+                              }
+                            />
+                          </label>
+                          <label className="form-label">
+                            Duration <span>(minutes, optional)</span>
+                            <input
+                              type="number"
+                              min="5"
+                              max="1440"
+                              step="5"
+                              placeholder="30"
+                              value={activityDraft.duration}
+                              onChange={(event) =>
+                                setActivityDraft({
+                                  ...activityDraft,
+                                  duration: event.target.value,
+                                })
+                              }
+                            />
+                          </label>
+                        </div>
+                        <fieldset className="repeat-options">
+                          <legend>Repeat</legend>
+                          <label>
+                            <input
+                              type="radio"
+                              name="activity-repeat"
+                              checked={activityDraft.repeat === "daily"}
+                              onChange={() =>
+                                setActivityDraft({
+                                  ...activityDraft,
+                                  repeat: "daily",
+                                })
+                              }
+                            />
+                            <span>Every day</span>
+                          </label>
+                          <label>
+                            <input
+                              type="radio"
+                              name="activity-repeat"
+                              checked={activityDraft.repeat === "specific"}
+                              onChange={() =>
+                                setActivityDraft({
+                                  ...activityDraft,
+                                  repeat: "specific",
+                                  days:
+                                    activityDraft.days.length === 7
+                                      ? [selectedDay]
+                                      : activityDraft.days,
+                                })
+                              }
+                            />
+                            <span>Specific days</span>
+                          </label>
+                        </fieldset>
+                        {activityDraft.repeat === "specific" && (
+                          <div className="repeat-day-options">
+                            <div aria-label="Repeat on weekdays">
+                              {DAYS.map((day) => (
+                                <button
+                                  type="button"
+                                  key={day.value}
+                                  aria-label={`Repeat on ${day.name}`}
+                                  aria-pressed={activityDraft.days.includes(
+                                    day.value,
+                                  )}
+                                  className={
+                                    activityDraft.days.includes(day.value)
+                                      ? "selected"
+                                      : ""
+                                  }
+                                  onClick={() =>
+                                    setActivityDraft({
+                                      ...activityDraft,
+                                      days: activityDraft.days.includes(
+                                        day.value,
+                                      )
+                                        ? activityDraft.days.filter(
+                                            (value) => value !== day.value,
+                                          )
+                                        : [...activityDraft.days, day.value],
+                                    })
+                                  }
+                                >
+                                  {day.short}
+                                </button>
+                              ))}
+                            </div>
+                            <div className="day-shortcuts">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setActivityDraft({
+                                    ...activityDraft,
+                                    days: [1, 2, 3, 4, 5],
+                                  })
+                                }
+                              >
+                                Weekdays
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setActivityDraft({
+                                    ...activityDraft,
+                                    days: [6, 0],
+                                  })
+                                }
+                              >
+                                Weekends
+                              </button>
+                            </div>
+                            <span>
+                              {activityDraft.days.length
+                                ? repeatLabel(activityDraft.days)
+                                : "Choose at least one day."}
+                            </span>
+                          </div>
+                        )}
+                        <label className="form-label">
+                          Note <span>(optional)</span>
+                          <input
+                            placeholder="A location, a goal, or something to remember"
+                            value={activityDraft.detail}
+                            onChange={(event) =>
+                              setActivityDraft({
+                                ...activityDraft,
+                                detail: event.target.value,
+                              })
+                            }
+                          />
+                        </label>
+                        {activityError && (
+                          <p className="activity-error" role="alert">
+                            {activityError}
+                          </p>
+                        )}
+                        <div className="activity-form-footer">
+                          <span>
+                            {activityDraft.repeat === "daily"
+                              ? "Added to every day of your week."
+                              : activityDraft.days.length
+                                ? `Repeats ${repeatLabel(activityDraft.days).toLowerCase()}.`
+                                : "Select your days above."}
+                          </span>
+                          <button
+                            className="button primary"
+                            disabled={activitySaving}
+                          >
+                            {activitySaving
+                              ? "Saving…"
+                              : editingActivity
+                                ? "Save changes"
+                                : "Add activity"}
+                            <Icon name="check" />
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                    <div className="schedule-timeline">
+                      {dayActivities.length ? (
+                        dayActivities.map((activity) => {
+                          const done = (activity.completedDates || []).includes(
+                            selectedWeekDay.dateKey,
+                          );
+                          const endTime = activityEndTime(activity);
+                          return (
+                            <article
+                              className={`schedule-row ${done ? "done" : ""}`}
+                              key={activity.id}
+                            >
+                              <div className="schedule-time">
+                                <strong>{formatPlanTime(activity.time)}</strong>
+                                {endTime && <span>{endTime}</span>}
+                              </div>
+                              <div className="schedule-line">
+                                <i />
+                              </div>
+                              <div className="schedule-activity">
+                                <div className="activity-row-top">
+                                  <h4>{activity.title}</h4>
+                                  <div>
+                                    <button
+                                      className="icon-button"
+                                      aria-label={`Edit ${activity.title}`}
+                                      onClick={() => editActivity(activity)}
+                                    >
+                                      <Icon name="note" />
+                                    </button>
+                                    <button
+                                      className="icon-button"
+                                      aria-label={`Remove activity ${activity.title}`}
+                                      onClick={() =>
+                                        mutate(
+                                          () =>
+                                            staticDelete(
+                                              `/activities/${activity.id}`,
+                                            ),
+                                          "Activity removed.",
+                                        )
+                                      }
+                                    >
+                                      <Icon name="trash" />
+                                    </button>
+                                  </div>
+                                </div>
+                                {activity.detail && <p>{activity.detail}</p>}
+                                <div className="activity-row-meta">
+                                  <span>
+                                    <Icon name="refresh" />
+                                    {repeatLabel(activity.days)}
+                                  </span>
+                                  {activity.duration && (
+                                    <span>
+                                      <Icon name="clock" />
+                                      {activity.duration} min
+                                    </span>
+                                  )}
+                                  {selectedWeekDay.dateKey <= todayKey && (
+                                    <button
+                                      className={`activity-done ${done ? "selected" : ""}`}
+                                      aria-pressed={done}
+                                      aria-label={`${done ? "Reopen" : "Complete"} activity ${activity.title}`}
+                                      onClick={() =>
+                                        mutate(
+                                          () =>
+                                            staticPatch(
+                                              `/activities/${activity.id}`,
+                                              {
+                                                completedDate:
+                                                  selectedWeekDay.dateKey,
+                                                done: !done,
+                                              },
+                                            ),
+                                          done
+                                            ? "Activity reopened."
+                                            : "Activity done.",
+                                        )
+                                      }
+                                    >
+                                      <Icon name="check" />
+                                      {done ? "Done" : "Mark done"}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </article>
+                          );
+                        })
+                      ) : (
+                        <div className="schedule-empty">
+                          <Empty
+                            icon="calendar"
+                            title={`Nothing planned for ${selectedWeekDay.isToday ? "today" : selectedWeekDay.name.toLowerCase()}.`}
+                            detail="Pick a quick activity above, or add your own."
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <details
+                      className="daily-plan-notes"
+                      open={planDirty || undefined}
+                    >
+                      <summary>
+                        <Icon name="note" />
+                        Notes for my daily plan
+                        <span>{planDirty ? "Unsaved" : "Optional"}</span>
+                      </summary>
+                      <textarea
+                        aria-label="daily planner"
+                        className="daily-notes-editor"
+                        value={plan}
+                        onChange={(event) => {
+                          setPlan(event.target.value);
+                          setPlanDirty(true);
+                        }}
+                        placeholder="My priorities, things to remember, or a plan in my own words…"
+                      />
+                      <div className="editor-footer">
+                        <span>Your existing notes stay here.</span>
+                        <button
+                          className="button secondary"
+                          onClick={savePlan}
+                          disabled={saving || !planDirty}
+                        >
+                          {saving ? "Saving…" : "Save notes"}
+                          <Icon name="check" />
+                        </button>
+                      </div>
+                    </details>
+                  </>
+                ) : (
+                  <>
+                    <div className="weekly-schedule-preview">
+                      {weekDays.map((day) => {
+                        const items = activitiesForDay(
+                          data.activities || [],
+                          day.value,
+                        );
+                        return (
+                          <button
+                            key={day.value}
+                            onClick={() => {
+                              setSelectedDay(day.value);
+                              switchPeriod("daily");
+                            }}
+                          >
+                            <span>{day.short}</span>
+                            <strong>{items.length}</strong>
+                            <small>
+                              {items.length === 1 ? "activity" : "activities"}
+                            </small>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <textarea
+                      aria-label="weekly planner"
+                      className="page-editor"
+                      value={plan}
+                      onChange={(event) => {
+                        setPlan(event.target.value);
+                        setPlanDirty(true);
+                      }}
+                      spellCheck
+                      placeholder="Notes for the week…"
+                    />
+                    <div className="editor-footer">
+                      <span>Activities above follow your repeat settings.</span>
+                      <button
+                        className="button primary"
+                        onClick={savePlan}
+                        disabled={saving || !planDirty}
+                      >
+                        {saving ? "Saving…" : "Save page"}
+                        <Icon name="check" />
+                      </button>
+                    </div>
+                  </>
+                )}
               </section>
               <aside className="planner-side">
+                <section className="card schedule-tips">
+                  <span className="tile-icon">
+                    <Icon name="calendar" />
+                  </span>
+                  <h2>Make it a routine.</h2>
+                  <p>
+                    Add a time, an activity, and the days it fits. Daily repeats
+                    appear all week; selected days appear only where you choose.
+                  </p>
+                  <div>
+                    <span>
+                      <Icon name="refresh" />
+                      Every day, weekdays, or weekends
+                    </span>
+                    <span>
+                      <Icon name="clock" />
+                      Start time and optional duration
+                    </span>
+                    <span>
+                      <Icon name="check" />
+                      Mark it done for that day
+                    </span>
+                  </div>
+                </section>
                 <section className="card tasks-card">
                   <div className="card-top">
                     <h2>Daily check-ins</h2>
