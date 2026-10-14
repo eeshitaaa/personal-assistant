@@ -170,6 +170,9 @@ function App() {
   const [data, setData] = useState(null);
   const [view, setView] = useState("today");
   const [mobileNav, setMobileNav] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => window.matchMedia("(max-width: 760px)").matches,
+  );
   const [toast, setToast] = useState("");
   const [error, setError] = useState("");
   const [quick, setQuick] = useState(null);
@@ -234,6 +237,12 @@ function App() {
       .catch(() => {});
   }, []);
   useEffect(() => {
+    const media = window.matchMedia("(max-width: 760px)");
+    const update = () => setIsMobile(media.matches);
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(""), 3400);
     return () => clearTimeout(timer);
@@ -273,7 +282,10 @@ function App() {
     if (!quick && !command && !aiSetup) return;
     previousFocus.current = document.activeElement;
     const dialog = dialogRef.current;
-    dialog?.querySelector("input, button")?.focus();
+    (
+      dialog?.querySelector("input, textarea") ||
+      dialog?.querySelector("button")
+    )?.focus();
     function trap(event) {
       if (event.key !== "Tab" || !dialog) return;
       const elements = [
@@ -338,8 +350,8 @@ function App() {
     setQuery("");
     window.scrollTo({ top: 0, behavior: "instant" });
   }
-  function openQuick(kind) {
-    setForm({ text: "", detail: "", date: "", time: "09:00" });
+  function openQuick(kind, projectStatus = "active") {
+    setForm({ text: "", detail: "", date: "", time: "09:00", projectStatus });
     setQuick(kind);
     setCommand(false);
   }
@@ -358,7 +370,11 @@ function App() {
         kind === "task"
           ? { text, timeOfDay: form.time }
           : kind === "project"
-            ? { name: text, detail: form.detail }
+            ? {
+                name: text,
+                detail: form.detail,
+                status: form.projectStatus || "active",
+              }
             : kind === "reminder"
               ? { text, remindAt: form.date }
               : { text };
@@ -669,7 +685,10 @@ function App() {
 
   return (
     <div className="app-layout">
-      <aside className={`sidebar ${mobileNav ? "mobile-open" : ""}`}>
+      <aside
+        className={`sidebar ${mobileNav ? "mobile-open" : ""}`}
+        inert={isMobile && !mobileNav ? true : undefined}
+      >
         <a
           href="#"
           className="brand"
@@ -779,12 +798,15 @@ function App() {
                 {view === "today" ? (
                   <>
                     {greeting}
+                    <span className="title-dot">.</span>
                     <span className="heading-star">✳</span>
                   </>
                 ) : (
-                  currentPage.name
+                  <>
+                    {currentPage.name}
+                    <span className="title-dot">.</span>
+                  </>
                 )}
-                <span className="title-dot">.</span>
               </h1>
               <p className="page-subtitle">
                 {
@@ -1306,6 +1328,7 @@ function App() {
                                 Status for {project.name}
                               </span>
                               <select
+                                aria-label={`Status for ${project.name}`}
                                 value={status}
                                 onChange={(e) =>
                                   mutate(
@@ -1339,7 +1362,7 @@ function App() {
                       ))}
                     <button
                       className="column-add"
-                      onClick={() => openQuick("project")}
+                      onClick={() => openQuick("project", status)}
                     >
                       <Icon name="plus" /> New project
                     </button>

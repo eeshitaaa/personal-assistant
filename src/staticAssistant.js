@@ -200,7 +200,8 @@ export async function staticPost(path, body) {
   if (path === "/routines/daily") {
     store.routines.daily = {
       kind: "daily",
-      content: body.content || DEFAULT_DAILY_PLAN,
+      content:
+        typeof body.content === "string" ? body.content : DEFAULT_DAILY_PLAN,
       updated_at: now().toISOString(),
     };
     writeStore(store);
@@ -210,7 +211,8 @@ export async function staticPost(path, body) {
   if (path === "/routines/weekly") {
     store.routines.weekly = {
       kind: "weekly",
-      content: body.content || DEFAULT_WEEKLY_PLAN,
+      content:
+        typeof body.content === "string" ? body.content : DEFAULT_WEEKLY_PLAN,
       updated_at: now().toISOString(),
     };
     writeStore(store);
@@ -284,7 +286,9 @@ export async function staticPost(path, body) {
       id: crypto.randomUUID(),
       name: body.name,
       detail: body.detail || "",
-      status: "active",
+      status: ["active", "paused", "completed"].includes(body.status)
+        ? body.status
+        : "active",
       created_at: now().toISOString(),
     });
     writeStore(store);
