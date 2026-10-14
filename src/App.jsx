@@ -237,7 +237,10 @@ function Empty({ icon = "note", title, detail }) {
 }
 function App() {
   const [data, setData] = useState(null);
-  const [view, setView] = useState("today");
+  const [view, setView] = useState(() => {
+    const requested = new URLSearchParams(window.location.search).get("view");
+    return pages.some((page) => page.id === requested) ? requested : "today";
+  });
   const [mobileNav, setMobileNav] = useState(false);
   const [isMobile, setIsMobile] = useState(
     () => window.matchMedia("(max-width: 760px)").matches,
@@ -433,6 +436,10 @@ function App() {
     }
   }
   function navigate(id) {
+    const nextUrl = new URL(window.location.href);
+    if (id === "today") nextUrl.searchParams.delete("view");
+    else nextUrl.searchParams.set("view", id);
+    window.history.replaceState(null, "", nextUrl);
     setView(id);
     setMobileNav(false);
     setCommand(false);

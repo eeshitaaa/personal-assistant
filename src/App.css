@@ -3006,3 +3006,32 @@ h1 {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+.editor-heading {
+  display: grid;
+  grid-template-columns: 33px minmax(0, 1fr);
+  column-gap: 13px;
+  padding: 24px 0 23px;
+}
+.editor-heading > span {
+  grid-row: span 2;
+  font-size: 27px;
+  align-self: center;
+}
+.editor-heading h2 {
+  font-size: 28px;
+  margin: 0;
+}
+.editor-heading p {
+  margin-top: 5px;
+  font-size: 10px;
+}
+@media (max-width: 540px) {
+  .editor-heading {
+    padding: 22px 0 21px;
+    column-gap: 10px;
+  }
+  .editor-heading h2 {
+    font-size: 26px;
+  }
+}
