@@ -937,7 +937,7 @@ export default function Diet({ onToast }) {
               <h2>The last 7 days</h2>
               <div
                 className="diet-bars"
-                role="img"
+                role="group"
                 aria-label="Daily logged calories for the last seven days"
               >
                 {Array.from({ length: 7 }, (_, i) => {
