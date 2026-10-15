@@ -13,6 +13,7 @@ export default function useNotifications(data, calendarEvents) {
   const [permission, setPermission] = useState(notificationPermission);
   const [error, setError] = useState("");
   const [testing, setTesting] = useState(false);
+  const [requesting, setRequesting] = useState(false);
   const update = useCallback((changes) => {
     setSettings((previous) => {
       const next = { ...previous, ...changes };
@@ -52,6 +53,7 @@ export default function useNotifications(data, calendarEvents) {
       );
       return;
     }
+    setRequesting(true);
     try {
       const result = await Notification.requestPermission();
       setPermission(result);
@@ -66,6 +68,8 @@ export default function useNotifications(data, calendarEvents) {
         );
     } catch {
       setError("Could not request notification permission in this browser.");
+    } finally {
+      setRequesting(false);
     }
   }
   async function test() {
@@ -153,5 +157,15 @@ export default function useNotifications(data, calendarEvents) {
       clearInterval(interval);
     };
   }, [data, calendarEvents, settings, permission]);
-  return { settings, permission, error, testing, update, enable, test, send };
+  return {
+    settings,
+    permission,
+    error,
+    testing,
+    requesting,
+    update,
+    enable,
+    test,
+    send,
+  };
 }

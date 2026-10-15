@@ -623,15 +623,26 @@ export default function CalendarConnections(props) {
               <button
                 className="button primary"
                 onClick={notifications.enable}
-                disabled={notifications.permission === "unsupported"}
+                disabled={
+                  notifications.permission === "unsupported" ||
+                  notifications.requesting
+                }
               >
-                {notifications.permission === "denied"
-                  ? "Check notification permission"
-                  : "Enable notifications"}
+                {notifications.requesting
+                  ? "Allow in your browser…"
+                  : notifications.permission === "denied"
+                    ? "Check notification permission"
+                    : "Enable notifications"}
                 <Icon name="bell" />
               </button>
             )}
           </div>
+          {notifications.requesting && (
+            <p className="connection-footnote" role="status">
+              Choose Allow in the browser’s notification prompt. Bring this tab
+              to the front if you don’t see it.
+            </p>
+          )}
           {notifications.error && (
             <p className="connection-error" role="alert">
               {notifications.error}
