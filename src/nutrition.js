@@ -401,11 +401,242 @@ const recipe = (id, name, meal, diet, minutes, items, steps, tags = []) => ({
   diet,
   minutes,
   servings: 1,
+  cuisine: ["chilla", "dalbowl", "chana", "paneer"].includes(id)
+    ? "Indian"
+    : "Everyday",
   ingredients: items.map(([id, g]) => ingredient(id, g)),
   steps,
   tags,
 });
+const indianRecipe = (...args) => ({ ...recipe(...args), cuisine: "Indian" });
 export const RECIPES = [
+  indianRecipe(
+    "masala-oats",
+    "Masala oats",
+    "Breakfast",
+    "vegan",
+    15,
+    [
+      ["oats", 50],
+      ["tomato", 80],
+      ["carrot", 50],
+      ["spinach", 30],
+      ["oil", 5],
+    ],
+    [
+      "Heat the measured oil with cumin, turmeric and chilli to taste. Add chopped tomato and carrot; cook until softened.",
+      "Add oats and about 200 ml water. Simmer until creamy, fold in spinach and cook until wilted.",
+    ],
+  ),
+  indianRecipe(
+    "aloo-paratha",
+    "Aloo paratha & curd",
+    "Breakfast",
+    "vegetarian",
+    30,
+    [
+      ["flour", 60],
+      ["potato", 100],
+      ["yogurt", 100],
+      ["oil", 5],
+    ],
+    [
+      "Knead the measured atta with water into a soft dough and rest briefly. Mash the boiled potato with cumin, coriander and chilli.",
+      "Divide into two small portions, stuff with potato and roll gently. Cook on a hot tawa, brushing with the measured oil.",
+      "Serve with the measured plain curd.",
+    ],
+    ["wheat", "milk"],
+  ),
+  indianRecipe(
+    "paneer-bhurji",
+    "Paneer bhurji & roti",
+    "Breakfast",
+    "vegetarian",
+    25,
+    [
+      ["paneer", 100],
+      ["tomato", 100],
+      ["spinach", 40],
+      ["flour", 60],
+      ["oil", 5],
+    ],
+    [
+      "Knead atta with water, roll into two small rotis and cook on a dry tawa.",
+      "Cook chopped tomato in the measured oil with cumin, turmeric and chilli. Add spinach, then crumbled paneer; stir until hot.",
+      "Serve with the rotis.",
+    ],
+    ["milk", "wheat"],
+  ),
+  indianRecipe(
+    "chole-chawal",
+    "Chole chawal",
+    "Lunch",
+    "vegan",
+    20,
+    [
+      ["chickpeas", 180],
+      ["tomato", 100],
+      ["rice", 150],
+      ["oil", 5],
+    ],
+    [
+      "Use cooked chickpeas and cooked rice in the weights listed. Heat the measured oil with cumin and chole spices.",
+      "Add chopped tomato and cook down. Stir in chickpeas and a splash of water; simmer for 10 minutes.",
+      "Serve over the warm rice.",
+    ],
+  ),
+  indianRecipe(
+    "dal-roti",
+    "Dal tadka & roti",
+    "Lunch",
+    "vegan",
+    25,
+    [
+      ["lentils", 200],
+      ["flour", 60],
+      ["tomato", 80],
+      ["oil", 5],
+    ],
+    [
+      "Use cooked lentils in the weight listed. Knead atta with water, roll two small rotis and cook on a dry tawa.",
+      "Warm lentils with water and turmeric. Heat the measured oil with cumin and chopped tomato, then stir this tadka into the dal.",
+      "Simmer briefly and serve with the rotis.",
+    ],
+    ["wheat"],
+  ),
+  indianRecipe(
+    "veg-pulao",
+    "Vegetable pulao & curd",
+    "Lunch",
+    "vegetarian",
+    20,
+    [
+      ["rice", 180],
+      ["carrot", 70],
+      ["spinach", 50],
+      ["tomato", 60],
+      ["yogurt", 100],
+      ["oil", 5],
+    ],
+    [
+      "Use cooked rice in the weight listed. Heat the measured oil with cumin and whole spices; add finely chopped carrot and tomato.",
+      "Cook until the vegetables soften, add spinach and fold in the cooked rice. Heat through.",
+      "Serve with plain curd.",
+    ],
+    ["milk"],
+  ),
+  indianRecipe(
+    "palak-paneer",
+    "Palak paneer & roti",
+    "Dinner",
+    "vegetarian",
+    30,
+    [
+      ["paneer", 120],
+      ["spinach", 150],
+      ["tomato", 80],
+      ["flour", 60],
+      ["oil", 5],
+    ],
+    [
+      "Knead atta with water, roll two small rotis and cook on a dry tawa.",
+      "Wilt spinach with a splash of water and blend or chop finely. Cook tomato in the measured oil with cumin and garam masala.",
+      "Add spinach and paneer cubes. Simmer gently until hot and serve with the rotis.",
+    ],
+    ["milk", "wheat"],
+  ),
+  indianRecipe(
+    "khichdi",
+    "Dal palak khichdi",
+    "Dinner",
+    "vegan",
+    20,
+    [
+      ["rice", 150],
+      ["lentils", 180],
+      ["spinach", 80],
+      ["carrot", 60],
+      ["oil", 5],
+    ],
+    [
+      "Use already-cooked rice and lentils in the weights listed. Heat the measured oil with cumin and turmeric; add finely diced carrot.",
+      "Add rice, lentils and enough water for a soft khichdi. Simmer until the carrot is tender.",
+      "Stir in spinach and cook until wilted. Adjust water to your preferred consistency.",
+    ],
+  ),
+  indianRecipe(
+    "chicken-curry",
+    "Chicken curry & rice",
+    "Dinner",
+    "omnivore",
+    25,
+    [
+      ["chicken", 140],
+      ["tomato", 120],
+      ["yogurt", 60],
+      ["rice", 150],
+      ["oil", 5],
+    ],
+    [
+      "This quick version uses cooked chicken and cooked rice in the weights listed. Cook chopped tomato in the measured oil with cumin, turmeric and garam masala.",
+      "Lower the heat and gradually stir in whisked yogurt. Add cooked chicken and a splash of water; simmer until steaming hot throughout.",
+      "Serve with warm rice.",
+    ],
+    ["milk"],
+  ),
+  indianRecipe(
+    "curd-rice",
+    "Curd rice",
+    "Dinner",
+    "vegetarian",
+    10,
+    [
+      ["rice", 180],
+      ["yogurt", 180],
+      ["carrot", 50],
+      ["oil", 3],
+    ],
+    [
+      "Cool cooked rice safely and use promptly. Mix the measured cooked rice with plain curd and grated carrot.",
+      "Heat the measured oil with cumin and curry leaves if available. Let it cool slightly, then stir through the rice.",
+      "Eat fresh; refrigerate leftovers promptly.",
+    ],
+    ["milk"],
+  ),
+  indianRecipe(
+    "aloo-chaat",
+    "Aloo chaat",
+    "Snack",
+    "vegetarian",
+    15,
+    [
+      ["potato", 150],
+      ["yogurt", 80],
+      ["tomato", 50],
+      ["oil", 3],
+    ],
+    [
+      "Dice the boiled potato and pan-toast it in the measured oil.",
+      "Top with plain curd, chopped tomato, roasted cumin and chilli to taste. Add any chutneys separately in the diary.",
+    ],
+    ["milk"],
+  ),
+  indianRecipe(
+    "fruit-chaat",
+    "Apple & banana chaat",
+    "Snack",
+    "vegan",
+    5,
+    [
+      ["apple", 120],
+      ["banana", 100],
+    ],
+    [
+      "Chop the apple and banana into bite-sized pieces.",
+      "Toss with lemon juice and roasted cumin to taste. Log any added sugar or salt separately.",
+    ],
+  ),
+
   recipe(
     "overnight",
     "Banana overnight oats",
@@ -444,7 +675,7 @@ export const RECIPES = [
   ),
   recipe(
     "chilla",
-    "Lentil pancakes",
+    "Dal chilla",
     "Breakfast",
     "vegan",
     25,
@@ -479,7 +710,7 @@ export const RECIPES = [
   ),
   recipe(
     "chana",
-    "Chana salad bowl",
+    "Chana chaat",
     "Lunch",
     "vegan",
     10,
@@ -686,6 +917,9 @@ export function eligibleRecipes(recipes, profile) {
     .flatMap((word) => aliases[word] || [word]);
   return recipes.filter(
     (r) =>
+      (!profile.cuisine ||
+        profile.cuisine === "all" ||
+        r.cuisine === profile.cuisine) &&
       (profile.diet === "omnivore" ||
         r.diet === profile.diet ||
         (profile.diet === "vegetarian" && r.diet === "vegan")) &&

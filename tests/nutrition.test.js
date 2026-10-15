@@ -86,3 +86,34 @@ test("unmatched meals stay empty instead of violating restrictions", () => {
 });
 test("local diary dates have stable ISO format", () =>
   assert.match(localDay(new Date("2026-10-15T12:00:00Z")), /^2026-10-15$/));
+
+test("Indian recipe portions retain gram-based nutrition and cover every meal", () => {
+  const indian = RECIPES.filter((r) => r.cuisine === "Indian");
+  assert.equal(indian.length, 16);
+  for (const meal of ["Breakfast", "Lunch", "Dinner", "Snack"])
+    assert(indian.some((r) => r.meal === meal));
+  for (const recipe of indian)
+    assert(recipe.ingredients.every((i) => i.food && i.grams > 0));
+  const paratha = indian.find((r) => r.id === "aloo-paratha");
+  assert.equal(
+    nutritionTotal(scaledIngredients(paratha, 1)).total.calories,
+    396.2,
+  );
+  assert.equal(
+    nutritionTotal(scaledIngredients(paratha, 2)).total.calories,
+    792.4,
+  );
+});
+test("Indian meal preference is honored by weekly plans and old profiles remain compatible", () => {
+  const plan = buildPlan(RECIPES, { ...profile, cuisine: "Indian" });
+  const meals = plan.days.flatMap((d) => d.meals).filter((m) => m.recipe);
+  assert.equal(meals.length, 28);
+  assert(
+    meals.every(
+      (m) => m.recipe.cuisine === "Indian" && m.recipe.diet === "vegan",
+    ),
+  );
+  assert(
+    eligibleRecipes(RECIPES, profile).some((r) => r.cuisine === "Everyday"),
+  );
+});

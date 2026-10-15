@@ -898,3 +898,233 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Colour gives each part of the food workspace a consistent place. */
+.diet-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.diet-tabs button i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--section-accent);
+  flex-shrink: 0;
+}
+#diet-tab-diary {
+  --section-accent: #a8c9b2;
+  --tab-bg: #254537;
+}
+#diet-tab-recipes {
+  --section-accent: #e7c38e;
+  --tab-bg: #51402b;
+}
+#diet-tab-profile {
+  --section-accent: #c5b7df;
+  --tab-bg: #3e324f;
+}
+#diet-tab-plan {
+  --section-accent: #a8c6db;
+  --tab-bg: #2b4051;
+}
+.diet-tabs button[aria-selected="true"] {
+  background: var(--tab-bg);
+  color: var(--section-accent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--section-accent) 35%, transparent);
+}
+.diet-hero.card {
+  background:
+    radial-gradient(ellipse at 85% 25%, #58745c66, transparent 65%),
+    linear-gradient(110deg, #18362d, #213c32);
+  border-color: #96b69a40;
+}
+.diet-hero .eyebrow {
+  color: #bfd6bb;
+}
+.diet-summary.card {
+  background: #eadbc4;
+  border-color: #f5e5cf;
+  color: #342922;
+}
+.diet-summary h2,
+.diet-summary .diet-energy strong {
+  color: #342922;
+}
+.diet-summary .small-pill {
+  color: #615444;
+  border-color: #76634a40;
+  background: #76634a0a;
+}
+.diet-summary .diet-energy span,
+.diet-summary .diet-meter > div,
+.diet-summary .diet-caption {
+  color: #675846;
+}
+.diet-summary .diet-meter progress,
+.diet-summary .diet-meter progress::-webkit-progress-bar {
+  background: #76634a1c;
+}
+.diet-summary .diet-meter progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #50745c, #83a384);
+}
+.diet-summary .diet-meter progress::-moz-progress-bar {
+  background: #50745c;
+}
+.diet-chart.card {
+  background: linear-gradient(135deg, #213a30, #192d28);
+  border-color: #9cbb9e35;
+}
+.diet-chart .macro-donut > div {
+  background: #20372f;
+}
+.diet-chart .macro-legend,
+.diet-chart .macro-legend b,
+.diet-chart .diet-caption {
+  color: #c1cbbb;
+}
+.diet-chart h2 {
+  color: #dce6d4;
+}
+[data-meal="Breakfast"] {
+  --meal-bg: #32261c;
+  --meal-header: #58412b;
+  --meal-accent: #ebca97;
+  --meal-line: #b9945b50;
+}
+[data-meal="Lunch"] {
+  --meal-bg: #1e3027;
+  --meal-header: #354b38;
+  --meal-accent: #c3d6ac;
+  --meal-line: #98b77b50;
+}
+[data-meal="Dinner"] {
+  --meal-bg: #292638;
+  --meal-header: #45415d;
+  --meal-accent: #d4c6eb;
+  --meal-line: #ab99d250;
+}
+[data-meal="Snack"] {
+  --meal-bg: #36212b;
+  --meal-header: #613c4b;
+  --meal-accent: #edbecb;
+  --meal-line: #c68b9f50;
+}
+.diet-meal.card,
+.diet-recipe.card,
+.diet-plan-meals > .card {
+  background: var(--meal-bg, var(--surface));
+  border-color: var(--meal-line, var(--line));
+}
+.diet-meal h3,
+.diet-recipe h3,
+.diet-plan-meals h3 {
+  color: var(--meal-accent, var(--cream));
+}
+.diet-meal .diet-section-heading {
+  border-left: 3px solid var(--meal-accent);
+  padding-left: 12px;
+}
+.recipe-monogram {
+  background:
+    radial-gradient(ellipse at 85% 120%, #ffffff0a, transparent),
+    var(--meal-header);
+  color: var(--meal-accent);
+  border-bottom: 1px solid var(--meal-line);
+}
+.recipe-body .eyebrow {
+  color: var(--meal-accent);
+}
+.recipe-body .diet-caption,
+.diet-meal .diet-caption,
+.diet-plan-meals p {
+  color: #ccc0b0;
+}
+.recipe-body .portion-control {
+  color: #c8bcad;
+}
+.recipe-body .button.secondary {
+  border-color: var(--meal-line);
+  color: var(--meal-accent);
+  background: #ffffff05;
+}
+.diet-meal .icon-button {
+  color: var(--meal-accent);
+}
+.cuisine-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0 0 22px;
+}
+.cuisine-filters button {
+  padding: 9px 14px;
+  border: 1px solid #e2c2912c;
+  background: #ffffff03;
+  border-radius: 20px;
+  color: var(--muted);
+  font-size: 11px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.cuisine-filters button[aria-pressed="true"] {
+  background: #eadbc4;
+  color: #3d3023;
+  border-color: #eadbc4;
+}
+.cuisine-filters span {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 10px;
+}
+.diet-profile.card {
+  background: linear-gradient(135deg, #2d2639, #241d30);
+  border-color: #b4a1d23a;
+}
+.diet-profile .eyebrow,
+.diet-profile h2 {
+  color: #d9caed;
+}
+.diet-profile .diet-caption,
+.diet-profile .diet-field {
+  color: #c2b5cd;
+}
+.diet-plan-intro.card,
+.diet-workout.card {
+  background: linear-gradient(135deg, #233443, #1d2937);
+  border-color: #96b9d33a;
+}
+.diet-plan-intro .eyebrow,
+.diet-workout .eyebrow,
+.diet-plan-intro h2,
+.diet-workout h2 {
+  color: #c7dfef;
+}
+.diet-plan-intro p,
+.diet-workout p {
+  color: #b9c6d0;
+}
+@media (max-width: 600px) {
+  .diet-tabs button {
+    gap: 5px;
+  }
+  .diet-tabs button i {
+    width: 4px;
+    height: 4px;
+  }
+  .cuisine-filters {
+    gap: 6px;
+  }
+  .cuisine-filters button {
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+  .cuisine-filters span {
+    flex-basis: 100%;
+    margin-top: 5px;
+  }
+}

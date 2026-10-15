@@ -19,6 +19,7 @@ const blankProfile = {
   sex: "",
   activity: "light",
   diet: "vegetarian",
+  cuisine: "all",
   avoid: "",
   cookTime: 30,
   workoutDays: 3,
@@ -277,6 +278,7 @@ function Editor({ editor, onClose, onSave, foods }) {
     [minutes, setMinutes] = useState(editor.minutes || 20),
     [steps, setSteps] = useState(editor.steps?.join("\n") || ""),
     [diet, setDiet] = useState(editor.diet || "vegetarian"),
+    [cuisine, setCuisine] = useState(editor.cuisine || "Indian"),
     [tags, setTags] = useState(editor.tags?.join(", ") || ""),
     [error, setError] = useState("");
   const recipe = editor.kind === "recipe";
@@ -339,6 +341,7 @@ function Editor({ editor, onClose, onSave, foods }) {
         .map((s) => s.trim())
         .filter(Boolean),
       diet,
+      cuisine,
       tags: tags
         .split(",")
         .map((t) => t.trim())
@@ -438,6 +441,15 @@ function Editor({ editor, onClose, onSave, foods }) {
                     </option>
                   </select>
                 </Field>
+                <Field label="Cuisine">
+                  <select
+                    value={cuisine}
+                    onChange={(e) => setCuisine(e.target.value)}
+                  >
+                    <option>Indian</option>
+                    <option>Everyday</option>
+                  </select>
+                </Field>
                 <Field label="Allergens / tags (comma-separated)">
                   <input
                     value={tags}
@@ -497,7 +509,7 @@ function RecipeCard({ recipe, onLog, onEdit, onDelete }) {
   const items = scaledIngredients(recipe, Number(portions) || 1),
     { total } = nutritionTotal(items);
   return (
-    <article className="diet-recipe card">
+    <article className="diet-recipe card" data-meal={recipe.meal}>
       <div className="recipe-monogram" aria-hidden="true">
         {recipe.meal === "Breakfast"
           ? "☀"
@@ -510,7 +522,7 @@ function RecipeCard({ recipe, onLog, onEdit, onDelete }) {
       </div>
       <div className="recipe-body">
         <span className="eyebrow">
-          {recipe.meal} · {recipe.diet}
+          {recipe.meal} · {recipe.cuisine || "My recipe"} · {recipe.diet}
           {recipe.custom ? " · MINE" : ""}
         </span>
         <h3>{recipe.name}</h3>
@@ -594,6 +606,7 @@ export default function Diet({ onToast }) {
     [editor, setEditor] = useState(null),
     [search, setSearch] = useState(""),
     [mealFilter, setMealFilter] = useState("All meals"),
+    [cuisineFilter, setCuisineFilter] = useState("All cuisines"),
     [profile, setProfile] = useState(() => load().profile),
     [error, setError] = useState(""),
     [planDay, setPlanDay] = useState(0);
@@ -679,11 +692,22 @@ export default function Diet({ onToast }) {
   const recipeMatches = allRecipes.filter(
     (r) =>
       (mealFilter === "All meals" || r.meal === mealFilter) &&
+      (cuisineFilter === "All cuisines" ||
+        (cuisineFilter === "My recipes"
+          ? r.custom
+          : r.cuisine === cuisineFilter)) &&
       [r.name, ...r.ingredients.map((i) => i.food.name)]
         .join(" ")
         .toLowerCase()
         .includes(search.toLowerCase()),
   );
+  const recipeRows = MEALS.map((meal) =>
+    recipeMatches.filter((r) => r.meal === meal),
+  );
+  const displayedRecipes = Array.from(
+    { length: Math.max(0, ...recipeRows.map((row) => row.length)) },
+    (_, index) => recipeRows.map((row) => row[index]).filter(Boolean),
+  ).flat();
   const chartItems = [
       ["protein", 4, "#d68793"],
       ["carbs", 4, "#e6c5a1"],
@@ -699,7 +723,7 @@ export default function Diet({ onToast }) {
     })
     .join(",");
   return (
-    <div className="diet-space">
+    <div className="diet-space" data-section={tab}>
       <div className="diet-tabs" role="tablist" aria-label="Diet sections">
         {[
           ["diary", "Food diary"],
@@ -715,6 +739,7 @@ export default function Diet({ onToast }) {
             key={id}
             onClick={() => setTab(id)}
           >
+            <i aria-hidden="true" />
             {label}
           </button>
         ))}
@@ -874,7 +899,7 @@ export default function Diet({ onToast }) {
             </div>
             <div className="diet-meal-grid">
               {MEALS.map((meal) => (
-                <section className="card diet-meal" key={meal}>
+                <section className="card diet-meal" data-meal={meal} key={meal}>
                   <div className="diet-section-heading">
                     <h3>{meal}</h3>
                     <button
@@ -979,8 +1004,8 @@ export default function Diet({ onToast }) {
                 <p className="eyebrow">THE RECIPE BOOK</p>
                 <h2>Something I’d actually eat.</h2>
                 <p className="diet-caption">
-                  Breakfast to dinner, and everything in between. Make the
-                  portions yours.
+                  Indian favourites and everyday meals, with portions that fit
+                  your plate.
                 </p>
               </div>
               <button
@@ -1007,8 +1032,26 @@ export default function Diet({ onToast }) {
                 ))}
               </select>
             </div>
+            <div
+              className="cuisine-filters"
+              role="group"
+              aria-label="Recipe cuisine"
+            >
+              {["All cuisines", "Indian", "Everyday", "My recipes"].map(
+                (cuisine) => (
+                  <button
+                    key={cuisine}
+                    aria-pressed={cuisineFilter === cuisine}
+                    onClick={() => setCuisineFilter(cuisine)}
+                  >
+                    {cuisine === "Indian" ? "Indian meals" : cuisine}
+                  </button>
+                ),
+              )}
+              <span>{recipeMatches.length} recipes</span>
+            </div>
             <div className="diet-recipe-grid">
-              {recipeMatches.map((r) => (
+              {displayedRecipes.map((r) => (
                 <RecipeCard
                   key={r.id}
                   recipe={r}
@@ -1095,6 +1138,18 @@ export default function Diet({ onToast }) {
                     <option value="light">Light activity</option>
                     <option value="moderate">Moderate activity</option>
                     <option value="high">Very active</option>
+                  </select>
+                </Field>
+                <Field label="Meals I prefer">
+                  <select
+                    value={profile.cuisine}
+                    onChange={(e) =>
+                      setProfile({ ...profile, cuisine: e.target.value })
+                    }
+                  >
+                    <option value="all">Indian + everyday meals</option>
+                    <option value="Indian">Indian meals</option>
+                    <option value="Everyday">Everyday meals</option>
                   </select>
                 </Field>
                 <Field label="Food preference">
@@ -1361,7 +1416,7 @@ export default function Diet({ onToast }) {
                 </section>
                 <div className="diet-plan-meals">
                   {data.plan.days[planDay].meals.map((m) => (
-                    <section className="card" key={m.meal}>
+                    <section className="card" data-meal={m.meal} key={m.meal}>
                       <span className="eyebrow">{m.meal}</span>
                       <h3>{m.recipe?.name || "Choose a meal"}</h3>
                       {m.recipe ? (
