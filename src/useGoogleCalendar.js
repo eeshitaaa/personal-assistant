@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PUBLIC_GOOGLE_CLIENT_ID } from "./publicConfig";
 import {
   GOOGLE_CALENDAR_SCOPE,
   GOOGLE_CLIENT_ID_KEY,
@@ -13,7 +14,7 @@ export default function useGoogleCalendar() {
     () =>
       import.meta.env.VITE_GOOGLE_CLIENT_ID ||
       localStorage.getItem(GOOGLE_CLIENT_ID_KEY) ||
-      "",
+      PUBLIC_GOOGLE_CLIENT_ID,
   );
   const [ready, setReady] = useState(false);
   const [identityVersion, setIdentityVersion] = useState(0);

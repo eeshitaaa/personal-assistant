@@ -18,6 +18,7 @@ import {
 import useGoogleCalendar from "./useGoogleCalendar";
 import useNotifications from "./useNotifications";
 import CalendarConnections from "./CalendarConnections";
+import Diet from "./Diet";
 import "./App.css";
 
 const pages = [
@@ -27,6 +28,7 @@ const pages = [
   { id: "projects", name: "Projects", icon: "grid" },
   { id: "assistant", name: "Ask assistant", icon: "spark" },
   { id: "affirmations", name: "Affirmations", icon: "heart" },
+  { id: "diet", name: "Food & movement", icon: "food" },
   { id: "calendar", name: "Calendar & reminders", icon: "calendar" },
 ];
 const affirmations = [
@@ -40,6 +42,11 @@ const affirmations = [
   "I’m doing this for me.",
 ];
 const paths = {
+  food: (
+    <>
+      <path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M18 3c-3 3-4 7-3 9h4M19 3v18" />
+    </>
+  ),
   sun: (
     <>
       <circle cx="12" cy="12" r="4" />
@@ -932,20 +939,22 @@ function App() {
                 ? "Draft in progress"
                 : "Saved on this device"}
             </span>
-            <button
-              className="button primary small"
-              onClick={() =>
-                openQuick(
-                  view === "notes"
-                    ? "note"
-                    : view === "projects"
-                      ? "project"
-                      : "task",
-                )
-              }
-            >
-              <Icon name="plus" /> Add new
-            </button>
+            {view !== "diet" && (
+              <button
+                className="button primary small"
+                onClick={() =>
+                  openQuick(
+                    view === "notes"
+                      ? "note"
+                      : view === "projects"
+                        ? "project"
+                        : "task",
+                  )
+                }
+              >
+                <Icon name="plus" /> Add new
+              </button>
+            )}
           </div>
         </header>
         <main className="page" key={view}>
@@ -966,6 +975,7 @@ function App() {
                       "Somewhere to ask questions and work things out.",
                     affirmations: "For when I need to hear it.",
                     calendar: "My events, reminders, and connections.",
+                    diet: "Good food. A little movement. All mine.",
                   }[view]
                 }
               </p>
@@ -1259,6 +1269,7 @@ function App() {
               </section>
             </>
           )}
+          {view === "diet" && <Diet onToast={setToast} />}
           {view === "calendar" && (
             <CalendarConnections
               calendar={calendar}
@@ -2150,6 +2161,9 @@ function App() {
             <span>
               <i /> My space.
             </span>
+            <a href="/privacy.html" target="_blank" rel="noreferrer">
+              Privacy
+            </a>
             <span>On my terms. ♡</span>
           </footer>
         </main>
