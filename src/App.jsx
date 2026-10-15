@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   loadStaticState,
   staticDelete,
@@ -15,6 +15,9 @@ import {
   formatPlanTime,
   activityEndTime,
 } from "./schedule";
+import useGoogleCalendar from "./useGoogleCalendar";
+import useNotifications from "./useNotifications";
+import CalendarConnections from "./CalendarConnections";
 import "./App.css";
 
 const pages = [
@@ -24,6 +27,7 @@ const pages = [
   { id: "projects", name: "Projects", icon: "grid" },
   { id: "assistant", name: "Ask assistant", icon: "spark" },
   { id: "affirmations", name: "Affirmations", icon: "heart" },
+  { id: "calendar", name: "Calendar & reminders", icon: "calendar" },
 ];
 const affirmations = [
   "I know what I bring to the table.",
@@ -68,6 +72,12 @@ const paths = {
   ),
   heart: (
     <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
+  ),
+  bell: (
+    <>
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" />
+      <path d="M10 21h4" />
+    </>
   ),
   plus: <path d="M12 5v14M5 12h14" />,
   arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
@@ -299,7 +309,9 @@ function App() {
   const [useContext, setUseContext] = useState(false);
   const [aiSetup, setAiSetup] = useState(false);
   const [notesFilter, setNotesFilter] = useState("");
-  const waterNudgeAt = useRef(Date.now());
+  const calendar = useGoogleCalendar();
+  const notifications = useNotifications(data, calendar.events);
+  const sendNotification = notifications.send;
   const dialogRef = useRef(null);
   const previousFocus = useRef(null);
 
@@ -365,11 +377,17 @@ function App() {
       setFocusSeconds(remaining);
       if (!remaining) {
         setFocusRunning(false);
-        setToast("Focus session complete. Take a little break. ✦");
+        setToast("Focus session complete. Time for a break.");
+        void sendNotification({
+          id: `focus:${focusEnd.current}`,
+          title: "Focus session complete",
+          body: "25 minutes done. Take a break.",
+          url: "/?view=today",
+        });
       }
     }, 250);
     return () => clearInterval(interval);
-  }, [focusRunning]);
+  }, [focusRunning, sendNotification]);
   useEffect(() => {
     if (!quick && !command && !aiSetup) return;
     previousFocus.current = document.activeElement;
@@ -402,30 +420,6 @@ function App() {
     };
   }, [quick, command, aiSetup]);
 
-  const waterPaused = data?.waterSettings.paused;
-  const waterInterval = data?.waterSettings.intervalMinutes;
-  useEffect(() => {
-    if (waterPaused || !waterInterval) return;
-    const timer = setInterval(() => {
-      const hour = Number(
-        new Date().toLocaleTimeString("en-GB", {
-          timeZone: "Asia/Kolkata",
-          hour: "2-digit",
-          hour12: false,
-        }),
-      );
-      if (
-        hour >= 8 &&
-        hour < 22 &&
-        Date.now() - waterNudgeAt.current >= waterInterval * 60000
-      ) {
-        setToast("A little water break? Water break");
-        waterNudgeAt.current = Date.now();
-      }
-    }, 60000);
-    return () => clearInterval(timer);
-  }, [waterPaused, waterInterval]);
-
   async function mutate(action, notice) {
     try {
       await action();
@@ -435,7 +429,7 @@ function App() {
       setToast("Could not save. Please try again.");
     }
   }
-  function navigate(id) {
+  const navigate = useCallback((id) => {
     const nextUrl = new URL(window.location.href);
     if (id === "today") nextUrl.searchParams.delete("view");
     else nextUrl.searchParams.set("view", id);
@@ -445,7 +439,21 @@ function App() {
     setCommand(false);
     setQuery("");
     window.scrollTo({ top: 0, behavior: "instant" });
-  }
+  }, []);
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    const openView = (event) => {
+      if (event.origin && event.origin !== window.location.origin) return;
+      if (
+        event.data?.type === "assistant-open-view" &&
+        pages.some((page) => page.id === event.data.view)
+      )
+        navigate(event.data.view);
+    };
+    navigator.serviceWorker.addEventListener("message", openView);
+    return () =>
+      navigator.serviceWorker.removeEventListener("message", openView);
+  }, [navigate]);
   function openQuick(kind, projectStatus = "active") {
     setForm({ text: "", detail: "", date: "", time: "09:00", projectStatus });
     setQuick(kind);
@@ -886,7 +894,7 @@ function App() {
               My rules.
             </p>
           </div>
-          <button className="user-switch" onClick={() => setAiSetup(true)}>
+          <button className="user-switch" onClick={() => navigate("calendar")}>
             <span className="avatar">E</span>
             <span>
               My workspace<small>Saved on this device</small>
@@ -957,6 +965,7 @@ function App() {
                     assistant:
                       "Somewhere to ask questions and work things out.",
                     affirmations: "For when I need to hear it.",
+                    calendar: "My events, reminders, and connections.",
                   }[view]
                 }
               </p>
@@ -1249,6 +1258,14 @@ function App() {
                 </button>
               </section>
             </>
+          )}
+          {view === "calendar" && (
+            <CalendarConnections
+              calendar={calendar}
+              notifications={notifications}
+              Icon={Icon}
+              onToast={setToast}
+            />
           )}
           {view === "planner" && (
             <div className="planner-layout">
@@ -1725,30 +1742,6 @@ function App() {
                 )}
               </section>
               <aside className="planner-side">
-                <section className="card schedule-tips">
-                  <span className="tile-icon">
-                    <Icon name="calendar" />
-                  </span>
-                  <h2>Make it a routine.</h2>
-                  <p>
-                    Add a time, an activity, and the days it fits. Daily repeats
-                    appear all week; selected days appear only where you choose.
-                  </p>
-                  <div>
-                    <span>
-                      <Icon name="refresh" />
-                      Every day, weekdays, or weekends
-                    </span>
-                    <span>
-                      <Icon name="clock" />
-                      Start time and optional duration
-                    </span>
-                    <span>
-                      <Icon name="check" />
-                      Mark it done for that day
-                    </span>
-                  </div>
-                </section>
                 <section className="card tasks-card">
                   <div className="card-top">
                     <h2>Daily check-ins</h2>

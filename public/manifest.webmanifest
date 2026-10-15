@@ -1,0 +1,17 @@
+{
+  "name": "Personal Assistant",
+  "short_name": "My space",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#17090d",
+  "theme_color": "#17090d",
+  "icons": [
+    {
+      "src": "/assistant.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
